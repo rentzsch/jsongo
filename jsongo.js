@@ -7,13 +7,8 @@ const valueOrJson = require("value-or-json");
 
 const fs = require("fs");
 const pathFormat = require("path").format;
-const promisify = require("util").promisify;
 
-const writeFileAsync = promisify(fs.writeFile);
-const readFileAsync = promisify(fs.readFile);
-const accessAsync = promisify(fs.access);
-
-async function db({ dirPath }) {
+function db({ dirPath }) {
   const dbImpl = new JsongoDB(dirPath);
   return new Proxy(dbImpl, dbImpl._proxyHandlers());
 }
@@ -39,12 +34,12 @@ class JsongoDB {
       }
     };
   }
-  async collections() {
+  collections() {
     return this._collections;
   }
-  async save() {
+  save() {
     for (const collection of this._collections) {
-      await collection.saveFile();
+      collection.saveFile();
     }
   }
 }
@@ -55,14 +50,14 @@ class JsongoCollection {
     this._name = name;
     // this._dirty = false; // TODO
   }
-  async save(document) {
-    const docs = await this.docs();
+  save(document) {
+    const docs = this.docs();
     if (document._id === undefined) {
       // Doesn't have an _id, it's an insert.
       document._id = ObjectID().toHexString();
     } else {
       // Has an _id, probably an update but may be an insert with a custom _id.
-      const docIdx = await this._findDocumentIndex(
+      const docIdx = this._findDocumentIndex(
         new mingo.Query({ _id: document._id })
       );
 
@@ -76,34 +71,34 @@ class JsongoCollection {
     docs.push(document);
     return document;
   }
-  async count() {
-    return (await this.docs()).length;
+  count() {
+    return this.docs().length;
   }
-  async deleteOne(query) {
+  deleteOne(query) {
     const mingoQuery = new mingo.Query(query);
-    const docIdx = await this._findDocumentIndex(mingoQuery);
+    const docIdx = this._findDocumentIndex(mingoQuery);
     if (docIdx === null) {
       return { deletedCount: 0 };
     } else {
-      (await this.docs()).splice(docIdx, 1);
+      this.docs().splice(docIdx, 1);
       return { deletedCount: 1 };
     }
   }
-  async find(query) {
-    return mingo.find(await this.docs(), query);
+  find(query) {
+    return mingo.find(this.docs(), query);
   }
-  async findOne(query) {
-    const cursor = await this.find(query);
+  findOne(query) {
+    const cursor = this.find(query);
     if (cursor.hasNext()) {
       return cursor.next();
     } else {
       return null;
     }
   }
-  async docs() {
+  docs() {
     if (this._docs === undefined) {
       try {
-        const jsonBuf = await readFileAsync(this._filePath());
+        const jsonBuf = fs.readFileSync(this._filePath());
         this._docs = JSON.parse(jsonBuf);
       } catch (ex) {
         if (ex.code === "ENOENT") {
@@ -115,14 +110,14 @@ class JsongoCollection {
     }
     return this._docs;
   }
-  async find(query) {
+  find(query) {
     const mingoQuery = new mingo.Query(query);
-    return mingoQuery.find(await this.docs());
+    return mingoQuery.find(this.docs());
   }
-  async upsert(doc) {
+  upsert(doc) {
     let matchCount = 0;
     const mingoQuery = new mingo.Query(doc);
-    for (const docItr of await this.docs()) {
+    for (const docItr of this.docs()) {
       if (mingoQuery.test(docItr)) {
         if (matchCount === 0) {
           doc._id = docItr._id;
@@ -134,11 +129,11 @@ class JsongoCollection {
     if (matchCount > 1) {
       return null;
     } else {
-      return await this.save(doc);
+      return this.save(doc);
     }
   }
-  async toJsonObj() {
-    const docs = await this.docs();
+  toJsonObj() {
+    const docs = this.docs();
     const sortedDocs = docs.sort(function(a, b) {
       const nameA = valueOrJson(a._id).toUpperCase(); // ignore upper and lowercase
       const nameB = valueOrJson(b._id).toUpperCase();
@@ -153,15 +148,15 @@ class JsongoCollection {
     });
     return sortedDocs.map(doc => sortKeys(doc, { deep: true }));
   }
-  async toJson() {
-    return JSON.stringify(await this.toJsonObj(), null, 2);
+  toJson() {
+    return JSON.stringify(this.toJsonObj(), null, 2);
   }
-  async saveFile() {
-    await writeFileAsync(this._filePath(), (await this.toJson()) + "\n");
+  saveFile() {
+    fs.writeFileSync(this._filePath(), this.toJson() + "\n");
   }
   //--
-  async _findDocumentIndex(mingoQuery) {
-    const docs = await this.docs();
+  _findDocumentIndex(mingoQuery) {
+    const docs = this.docs();
     for (let docIdx = 0; docIdx < docs.length; docIdx++) {
       if (mingoQuery.test(docs[docIdx])) {
         return docIdx;

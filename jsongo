@@ -9,11 +9,6 @@ const jsongo = require("./jsongo.js");
 const assert = require("assert");
 const fs = require("fs");
 const Path = require("path");
-const promisify = require("util").promisify;
-
-const readFileAsync = promisify(fs.readFile);
-const readdirAsync = promisify(fs.readdir);
-const writeFileAsync = promisify(fs.writeFile);
 
 /*
   jsongo fsck
@@ -27,33 +22,33 @@ const writeFileAsync = promisify(fs.writeFile);
   jsongo rewrite-id <collection> <oldid> <newid>
 */
 
-(async function main() {
+(function main() {
   const cmd = process.argv[2];
   switch (cmd) {
     case "objectid":
       console.log(ObjectID().toHexString());
       break;
     case "rewrite-id":
-      await rewriteId({
+      rewriteId({
         collectionName: process.argv[3],
         oldID: process.argv[4],
         newID: process.argv[5]
       });
       break;
     case "fmt":
-      await fmt();
+      fmt();
       break;
     case "e":
     case "eval":
-      await evalCmd(process.argv[3]);
+      evalCmd(process.argv[3]);
       break;
     case "fsck":
-      await fsck();
+      fsck();
       break;
     case "ls":
       console.log(
         JSON.stringify(
-          (await _jsonFileNames()).map(fileName =>
+          _jsonFileNames().map(fileName =>
             fileName.substr(0, fileName.length - 5)
           ),
           null,
@@ -67,7 +62,7 @@ const writeFileAsync = promisify(fs.writeFile);
   }
 })();
 
-async function rewriteId({ collectionName, oldID, newID }) {
+function rewriteId({ collectionName, oldID, newID }) {
   // TODO preflight to ensure newID is unqiue in collection.
 
   assert.notStrictEqual(collectionName, undefined);
@@ -76,8 +71,8 @@ async function rewriteId({ collectionName, oldID, newID }) {
 
   const collectionRelationKey = `${collectionName}_id`;
 
-  for (const jsonFileName of await _jsonFileNames()) {
-    const jsonBuf = await readFileAsync(jsonFileName);
+  for (const jsonFileName of _jsonFileNames()) {
+    const jsonBuf = fs.readFileSync(jsonFileName);
     const json = JSON.parse(jsonBuf);
     let dirty = false;
 
@@ -108,18 +103,18 @@ async function rewriteId({ collectionName, oldID, newID }) {
       }
     }
     if (dirty) {
-      await writeFileAsync(jsonFileName, JSON.stringify(json, null, 2));
+      fs.writeFileSync(jsonFileName, JSON.stringify(json, null, 2));
     }
   }
 }
 
-async function fsck() {
-  const jsonFileNames = (await readdirAsync(".")).filter(fileName =>
-    fileName.endsWith(".json")
-  );
-  for (const jsonFileName of await _jsonFileNames()) {
+function fsck() {
+  const jsonFileNames = fs
+    .readdirSync(".")
+    .filter(fileName => fileName.endsWith(".json"));
+  for (const jsonFileName of _jsonFileNames()) {
     console.log(`checking ${jsonFileName}`);
-    const jsonBuf = await readFileAsync(jsonFileName);
+    const jsonBuf = fs.readFileSync(jsonFileName);
     const json = JSON.parse(jsonBuf);
     jsonValidatorDuplicatedKeys.validate(jsonBuf);
 
@@ -129,26 +124,24 @@ async function fsck() {
   }
 }
 
-async function fmt() {
-  const db = await jsongo.db({ dirPath: "." });
-  for (const jsonFileName of await _jsonFileNames()) {
+function fmt() {
+  const db = jsongo.db({ dirPath: "." });
+  for (const jsonFileName of _jsonFileNames()) {
     const collectionName = Path.parse(jsonFileName).name;
-    await db[collectionName].docs();
+    db[collectionName].docs();
   }
-  await db.save();
+  db.save();
 }
 
-async function evalCmd(cmd) {
-  const db = await jsongo.db({ dirPath: "." });
-  const cmdFunctionStr = `(async function cmdFunctionStr(){
+function evalCmd(cmd) {
+  const db = jsongo.db({ dirPath: "." });
+  const cmdFunctionStr = `(function cmdFunctionStr(){
     "use strict";
     return (${cmd});
   })()`;
-  console.log(await eval(cmdFunctionStr));
+  console.log(eval(cmdFunctionStr));
 }
 
-async function _jsonFileNames() {
-  return (await readdirAsync(".")).filter(fileName =>
-    fileName.endsWith(".json")
-  );
+function _jsonFileNames() {
+  return fs.readdirSync(".").filter(fileName => fileName.endsWith(".json"));
 }

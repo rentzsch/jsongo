@@ -1,0 +1,21 @@
+{
+  "name": "jsongo",
+  "version": "0.1.0",
+  "main": "jsongo.js",
+  "license": "MIT",
+  "bin": "./jsongo",
+  "dependencies": {
+    "bson-objectid": "^1.2.4",
+    "json-validator-duplicated-keys": "^1.0.1",
+    "mingo": "^2.2.11",
+    "sort-keys": "^2.0.0",
+    "value-or-json": "^0.1.0",
+    "yargs": "^13.2.1"
+  },
+  "scripts": {
+    "test": "ava"
+  },
+  "devDependencies": {
+    "ava": "^1.2.1"
+  }
+}

@@ -1,0 +1,154 @@
+#!/usr/bin/env node
+"use strict";
+
+const jsonValidatorDuplicatedKeys = require("json-validator-duplicated-keys");
+const ObjectID = require("bson-objectid");
+
+const jsongo = require("./jsongo.js");
+
+const assert = require("assert");
+const fs = require("fs");
+const Path = require("path");
+const promisify = require("util").promisify;
+
+const readFileAsync = promisify(fs.readFile);
+const readdirAsync = promisify(fs.readdir);
+const writeFileAsync = promisify(fs.writeFile);
+
+/*
+  jsongo fsck
+    walk .json files
+      all JSON parsable
+      all arrays of records
+    keys are sorted
+    every record has an _id
+    all _id's are unique
+    every reference is valid
+  jsongo rewrite-id <collection> <oldid> <newid>
+*/
+
+(async function main() {
+  const cmd = process.argv[2];
+  switch (cmd) {
+    case "objectid":
+      console.log(ObjectID().toHexString());
+      break;
+    case "rewrite-id":
+      await rewriteId({
+        collectionName: process.argv[3],
+        oldID: process.argv[4],
+        newID: process.argv[5]
+      });
+      break;
+    case "fmt":
+      await fmt();
+      break;
+    case "e":
+    case "eval":
+      await evalCmd(process.argv[3]);
+      break;
+    case "fsck":
+      await fsck();
+      break;
+    case "ls":
+      console.log(
+        JSON.stringify(
+          (await _jsonFileNames()).map(fileName =>
+            fileName.substr(0, fileName.length - 5)
+          ),
+          null,
+          2
+        )
+      );
+      break;
+    default:
+      console.error(`ERROR unknown command: "${cmd}"`);
+      process.exit(1);
+  }
+})();
+
+async function rewriteId({ collectionName, oldID, newID }) {
+  // TODO preflight to ensure newID is unqiue in collection.
+
+  assert.notStrictEqual(collectionName, undefined);
+  assert.notStrictEqual(oldID, undefined);
+  assert.notStrictEqual(newID, undefined);
+
+  const collectionRelationKey = `${collectionName}_id`;
+
+  for (const jsonFileName of await _jsonFileNames()) {
+    const jsonBuf = await readFileAsync(jsonFileName);
+    const json = JSON.parse(jsonBuf);
+    let dirty = false;
+
+    if (Path.parse(jsonFileName).name === collectionName) {
+      // The collection that hold the document with oldID.
+      for (const doc of json) {
+        if (doc._id === oldID) {
+          doc._id = newID;
+          dirty = true;
+        }
+      }
+    } else {
+      // A collection that may have a reference to oldID.
+      for (const document of json) {
+        let value = document[collectionRelationKey];
+        if (value === undefined) continue;
+
+        if (value instanceof Array) {
+          const idx = value.indexOf(oldID);
+          if (idx !== -1) {
+            value[idx] = newID;
+            dirty = true;
+          }
+        } else if (value === oldID) {
+          document[collectionRelationKey] = newID;
+          dirty = true;
+        }
+      }
+    }
+    if (dirty) {
+      await writeFileAsync(jsonFileName, JSON.stringify(json, null, 2));
+    }
+  }
+}
+
+async function fsck() {
+  const jsonFileNames = (await readdirAsync(".")).filter(fileName =>
+    fileName.endsWith(".json")
+  );
+  for (const jsonFileName of await _jsonFileNames()) {
+    console.log(`checking ${jsonFileName}`);
+    const jsonBuf = await readFileAsync(jsonFileName);
+    const json = JSON.parse(jsonBuf);
+    jsonValidatorDuplicatedKeys.validate(jsonBuf);
+
+    // for (const record of json) {
+    //   console.log(`  ${record._id}`);
+    // }
+  }
+}
+
+async function fmt() {
+  const db = await jsongo.db({ dirPath: "." });
+  for (const jsonFileName of await _jsonFileNames()) {
+    const collectionName = Path.parse(jsonFileName).name;
+    await db[collectionName].docs();
+  }
+  await db.save();
+}
+
+async function evalCmd(cmd) {
+  const db = await jsongo.db({ dirPath: "." });
+  const cmdFunctionStr = `(async function cmdFunctionStr(){
+    "use strict";
+    return (${cmd});
+  })()`;
+  console.log(await eval(cmdFunctionStr));
+}
+
+async function _jsonFileNames() {
+  return (await readdirAsync(".")).filter(fileName =>
+    fileName.endsWith(".json")
+  );
+}

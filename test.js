@@ -7,11 +7,11 @@ const jsongo = require("./jsongo.js");
 test("basic", t => {
   const db = jsongo.db({ dirPath: "/doesnotexist" });
 
-  t.is((db.collections()).length, 0);
+  t.is(db.collections().length, 0);
   db.flintstones;
-  t.is((db.collections()).length, 1);
+  t.is(db.collections().length, 1);
   db.flintstones;
-  t.is((db.collections()).length, 1);
+  t.is(db.collections().length, 1);
   // db.flintstones.drop();
   // t.is((db.collections()).length, 0);
 
@@ -45,7 +45,7 @@ test("basic", t => {
     }
   ]);
 
-  t.is((db.flintstones.deleteOne(pebbles2)).deletedCount, 1);
+  t.is(db.flintstones.deleteOne(pebbles2).deletedCount, 1);
   t.is(db.flintstones.count(), 1);
   t.deepEqual(db.flintstones.toJsonObj(), [
     {
@@ -54,7 +54,7 @@ test("basic", t => {
     }
   ]);
 
-  t.is((db.flintstones.deleteOne(pebbles2)).deletedCount, 0);
+  t.is(db.flintstones.deleteOne(pebbles2).deletedCount, 0);
   t.is(db.flintstones.count(), 1);
   t.deepEqual(db.flintstones.toJsonObj(), [
     {

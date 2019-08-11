@@ -1,8 +1,9 @@
 {
   "name": "jsongo",
-  "version": "0.1.2",
-  "main": "jsongo.js",
+  "version": "0.2.0",
+  "description": "like mongo db, except stores data in git-friendly flat json files",
   "license": "MIT",
+  "repository": "git@github.com:jsonggo1/jsongo.git",
   "bin": "./jsongo",
   "dependencies": {
     "bson-objectid": "^1.2.4",

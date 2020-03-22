@@ -1,6 +1,6 @@
 "use strict";
 
-import test from "ava";
+const test = require("ava");
 const ObjectID = require("bson-objectid");
 const jsongo = require("./jsongo.js");
 

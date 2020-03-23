@@ -2,7 +2,7 @@
 
 const test = require("ava");
 const ObjectID = require("bson-objectid");
-const jsongo = require("./jsongo.js");
+const jsongo = require("../jsongo.js");
 
 test("basic", t => {
   const db = jsongo.db({ dirPath: "/doesnotexist" });

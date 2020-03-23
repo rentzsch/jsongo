@@ -17,12 +17,12 @@ It consists of a [data format](#data-format), a [code library](#library), and a 
 Pros:
 
 - Freeform Record Format
-- Highly Semantic
-    - xxxxxx
 - Human (Developer) Interaction Prioritized
-- Easily utilize semantic "callsign" primary keys
-- Simple and Obvious On-Disk Data Format
+- Highly Semantic
+    - Simple and obvious named data files
+    - Textually explorable
     - Archival Quality
+    - Easily utilize semantic "callsign" primary keys
 - Version Control Friendly
 - Version Control Agnostic
 
@@ -188,3 +188,10 @@ When you need to generate a new ObjectID.
 
     $ jsongo objectid
     5e78113ce16c4b07694a2bf1 
+
+Version History
+---------------
+
+- **v0.2.0** Aug 11 2019: Switch from Async to Sync; Initial NPM publish.
+
+- **v0.1.0** Jan 2019: Initial dev.

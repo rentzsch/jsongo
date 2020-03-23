@@ -1,14 +1,14 @@
 {
   "name": "jsongo",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "like mongo db, except stores data in git-friendly flat json files",
   "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/jsongo1/jsongo.git"
-  },
+  "main": "jsongo.js",
   "bin": {
     "jsongo": "./jsongo"
+  },
+  "scripts": {
+    "test": "ava test/test.js"
   },
   "dependencies": {
     "bson-objectid": "^1.3.0",
@@ -18,10 +18,14 @@
     "value-or-json": "^0.1.0",
     "yargs": "^15.3.1"
   },
-  "scripts": {
-    "test": "ava"
-  },
   "devDependencies": {
     "ava": "^3.5.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jsongo1/jsongo.git"
+  },
+  "engines": {
+    "node": ">=8"
   }
 }

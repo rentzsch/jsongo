@@ -1,11 +1,11 @@
 import { AJsongoDB, JsongoFSDB } from "./JsongoDB";
 
-const ObjectID = require("bson-objectid");
+import ObjectID from "bson-objectid";
 import mingo from "mingo";
 import { Cursor } from "mingo/cursor";
 import { Query } from "mingo/query";
-const sortKeys = require("sort-keys");
-const valueOrJson = require("value-or-json");
+import sortKeys from "sort-keys";
+import valueOrJson from "value-or-json";
 
 import path from "path";
 import fs from "fs";
@@ -57,7 +57,7 @@ export abstract class AJsongoCollection {
     const docs = this.docs();
     if ((doc as any)._id === undefined) {
       // Doesn't have an _id, it's an insert.
-      (doc as any)._id = ObjectID().toHexString();
+      (doc as any)._id = new ObjectID().toHexString();
     } else {
       // Has an _id, probably an update but may be an insert with a custom _id.
       const docIdx = this._findDocumentIndex(

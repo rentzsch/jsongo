@@ -187,11 +187,4 @@ Makes it easy to replace an automatically generated `_id` with a semantic one.
 When you need to generate a new ObjectID.
 
     $ jsongo objectid
-    5e78113ce16c4b07694a2bf1 
-
-Version History
----------------
-
-- **v0.2.0** Aug 11 2019: Switch from Async to Sync; Initial NPM publish.
-
-- **v0.1.0** Jan 2019: Initial dev.
+    5e78113ce16c4b07694a2bf1

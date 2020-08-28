@@ -1,161 +1,69 @@
 "use strict";
-
-const test = require("ava");
-const ObjectID = require("bson-objectid");
-const jsongo = require("../jsongo.js");
-
-test("basic", t => {
-  const db = jsongo.db({ dirPath: "/doesnotexist" });
-
-  t.is(db.collections().length, 0);
-  db.flintstones;
-  t.is(db.collections().length, 1);
-  db.flintstones;
-  t.is(db.collections().length, 1);
-  // db.flintstones.drop();
-  // t.is((db.collections()).length, 0);
-
-  t.deepEqual(db.flintstones.toJsonObj(), []);
-  t.is(db.flintstones.count(), 0);
-
-  const pebbles = db.flintstones.save({ firstName: "Pebbles" });
-  t.is(db.flintstones.count(), 1);
-  t.not(pebbles._id, undefined);
-  t.is(pebbles.firstName, "Pebbles");
-  t.deepEqual(db.flintstones.toJsonObj(), [
-    {
-      _id: pebbles._id,
-      firstName: "Pebbles"
-    }
-  ]);
-
-  const pebbles2 = db.flintstones.save({ firstName: "Pebbles" });
-  t.is(db.flintstones.count(), 2);
-  t.not(pebbles2._id, undefined);
-  t.not(pebbles2._id, pebbles._id);
-  t.is(pebbles2.firstName, "Pebbles");
-  t.deepEqual(db.flintstones.toJsonObj(), [
-    {
-      _id: pebbles._id,
-      firstName: "Pebbles"
-    },
-    {
-      _id: pebbles2._id,
-      firstName: "Pebbles"
-    }
-  ]);
-
-  t.is(db.flintstones.deleteOne(pebbles2).deletedCount, 1);
-  t.is(db.flintstones.count(), 1);
-  t.deepEqual(db.flintstones.toJsonObj(), [
-    {
-      _id: pebbles._id,
-      firstName: "Pebbles"
-    }
-  ]);
-
-  t.is(db.flintstones.deleteOne(pebbles2).deletedCount, 0);
-  t.is(db.flintstones.count(), 1);
-  t.deepEqual(db.flintstones.toJsonObj(), [
-    {
-      _id: pebbles._id,
-      firstName: "Pebbles"
-    }
-  ]);
-
-  const fred = db.flintstones.save({
-    firstName: "Fred",
-    children: [pebbles._id]
-  });
-  t.is(db.flintstones.count(), 2);
-  t.deepEqual(db.flintstones.toJsonObj(), [
-    {
-      _id: pebbles._id,
-      firstName: "Pebbles"
-    },
-    {
-      _id: fred._id,
-      firstName: "Fred",
-      children: [pebbles._id]
-    }
-  ]);
-
-  pebbles.parent = fred._id;
-  db.flintstones.save(pebbles);
-  t.is(db.flintstones.count(), 2);
-  t.deepEqual(db.flintstones.toJsonObj(), [
-    {
-      _id: pebbles._id,
-      firstName: "Pebbles",
-      parent: fred._id
-    },
-    {
-      _id: fred._id,
-      firstName: "Fred",
-      children: [pebbles._id]
-    }
-  ]);
-
-  const pebblesFound = db.flintstones.findOne({ _id: pebbles._id });
-  t.deepEqual(pebblesFound, {
-    _id: pebbles._id,
-    firstName: "Pebbles",
-    parent: fred._id
-  });
-
-  db.flintstones.upsert({ firstName: "Wilma" });
-  t.is(db.flintstones.count(), 3);
-
-  db.flintstones.upsert({ firstName: "Wilma" });
-  t.is(db.flintstones.count(), 3);
-  t.not(db.flintstones.findOne({ firstName: "Fred" }), null);
-
-  db.flintstones.deleteOne({ firstName: "Wilma" });
-  t.is(db.flintstones.count(), 2);
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const JsongoDB_1 = require("../lib/JsongoDB");
+const JsongoCollection_1 = require("../lib/JsongoCollection");
+const ava_1 = __importDefault(require("ava"));
+const memfs_1 = require("memfs");
+//
+//
+//
+ava_1.default("fsdb", (t) => {
+    const [memFSDB, vol] = newMemFSDB();
+    t.is(vol.readdirSync("/").length, 0);
+    const collection = memFSDB.addNewCollection("uno");
+    t.is(collection.count(), 0);
+    collection.save({ name: "fred" });
+    t.is(collection.count(), 1);
+    collection.saveFile();
+    t.deepEqual(vol.readdirSync("/"), ["uno.json"]);
+    const jsonBuf = vol.readFileSync("/uno.json", "utf-8");
+    const json = JSON.parse(jsonBuf);
+    t.is(json[0].name, "fred");
 });
-
-test("save no _id", t => {
-  const db = jsongo.db({ dirPath: "/doesnotexist" });
-
-  // Save new.
-
-  t.is(db.flintstones.count(), 0);
-  const fred = db.flintstones.save({
-    firstName: "Fred"
-  });
-  t.is(db.flintstones.count(), 1);
-  t.true(ObjectID.isValid(fred._id));
-  t.deepEqual(fred, { _id: fred._id, firstName: "Fred" });
-
-  // Update existing.
-
-  const fred2 = db.flintstones.save({
-    _id: fred._id,
-    firstName: "Fred",
-    age: 42
-  });
-  t.is(db.flintstones.count(), 1);
-  t.deepEqual(fred2, { _id: fred._id, firstName: "Fred", age: 42 });
+ava_1.default("parseJsongoRelationName", (t) => {
+    t.is(JsongoCollection_1.parseJsongoRelationName(""), null);
+    t.is(JsongoCollection_1.parseJsongoRelationName("_id"), null);
+    t.is(JsongoCollection_1.parseJsongoRelationName("x_id"), "x");
+    t.is(JsongoCollection_1.parseJsongoRelationName("camelCase_id"), "camelCase");
+    t.is(JsongoCollection_1.parseJsongoRelationName("x(y_id)"), "y");
+    t.is(JsongoCollection_1.parseJsongoRelationName("_id)"), null);
+    t.is(JsongoCollection_1.parseJsongoRelationName("(_id)"), null);
+    t.is(JsongoCollection_1.parseJsongoRelationName("comment(collection_id)"), "collection");
 });
-
-test("save custom _id", t => {
-  const db = jsongo.db({ dirPath: "/doesnotexist" });
-
-  // Save new.
-
-  t.is(db.flintstones.count(), 0);
-  const fred = db.flintstones.save({
-    _id: "Fred"
-  });
-  t.is(db.flintstones.count(), 1);
-  t.deepEqual(fred, { _id: "Fred" });
-
-  // Update existing.
-
-  const fred2 = db.flintstones.save({
-    _id: "Fred",
-    age: 42
-  });
-  t.is(db.flintstones.count(), 1);
-  t.deepEqual(fred2, { _id: "Fred", age: 42 });
+/*
+test("fsck", (t) => {
+  testAgainstMemAndMemFSDB(testDB);
+  function testDB(db: AJsongoDB) {
+    const person = db.addNewCollection("person");
+    person.save({_id:"Homer", "spouse(person_id)":"Marge"});
+    
+    const fsckResults1 = person.fsck();
+  }
 });
+*/
+ava_1.default("don't allow duplicate collection names", (t) => {
+    testAgainstMemAndMemFSDB(testDB);
+    function testDB(db) {
+        db.addNewCollection("uno");
+        t.throws(() => {
+            db.addNewCollection("uno");
+        }, { name: "JsongoDuplicateCollectionName" });
+    }
+});
+function testAgainstMemAndMemFSDB(testFunc) {
+    [new JsongoDB_1.JsongoMemDB(), newMemFSDB()[0]].map((db) => testFunc(db));
+}
+function newMemFSDB() {
+    const vol = memfs_1.Volume.fromJSON({});
+    return [new JsongoDB_1.JsongoFSDB({ dirPath: "/", fs: vol }), vol];
+}
+function toVolumeJSON(volData) {
+    const result = {};
+    for (const [key, value] of Object.entries(volData)) {
+        result[key] = JSON.stringify(value, null, 2);
+    }
+    return result;
+}

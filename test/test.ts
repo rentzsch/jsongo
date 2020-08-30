@@ -44,7 +44,7 @@ test("fsck", (t) => {
   function testDB(db: AJsongoDB) {
     const person = db.addNewCollection("person");
     person.save({_id:"Homer", "spouse(person_id)":"Marge"});
-    
+
     const fsckResults1 = person.fsck();
   }
 });
@@ -62,7 +62,7 @@ test("don't allow duplicate collection names", (t) => {
   }
 });
 
-function testAgainstMemAndMemFSDB(testFunc:Function) {
+function testAgainstMemAndMemFSDB(testFunc: Function) {
   [new JsongoMemDB(), newMemFSDB()[0]].map((db) => testFunc(db));
 }
 

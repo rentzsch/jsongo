@@ -8,13 +8,13 @@ export default {
   output: {
     file: "build/jsongo.min.js",
     name: "Jsongo",
-    format: "iife",
+    format: "umd",
     globals: {},
   },
   plugins: [
     nodeResolve(),
     commonjs(),
-    typescript({ tsconfig: "./tsconfig.browser.json" }),
+    typescript({ tsconfig: "./tsconfig.umd.json" }),
     terser(),
   ],
 };

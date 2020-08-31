@@ -5,13 +5,15 @@
   "license": "MIT",
   "bin": "build/cli/jsongo-cli.js",
   "main": "build/lib/index.js",
+  "module": "build/esm/lib/index.js",
   "unpkg": "build/jsongo.min.js",
   "types": "lib",
   "scripts": {
     "clean": "rm -rf build",
     "build": "run-p clean build:*",
-    "build:node": "tsc -p tsconfig.node.json",
-    "build:browser": "rollup -c",
+    "build:cjs": "tsc -p tsconfig.cjs.json",
+    "build:esm": "tsc -p tsconfig.esm.json",
+    "build:umd": "rollup -c",
     "test": "yarn clean && tsc --outDir build && ava",
     "watch": "(tsc --watch &); ava --watch"
   },

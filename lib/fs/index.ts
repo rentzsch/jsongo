@@ -1,4 +1,4 @@
-export { default as fsDB } from "./jsongo.fs";
+export * from "./jsongo.fs";
 
 export * from "./JsongoFSCollection";
 

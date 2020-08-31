@@ -1,5 +1,3 @@
 import { JsongoMemDB } from "./JsongoMemDB";
 
-const db = () => new JsongoMemDB();
-
-export default db;
+export const memDB = () => new JsongoMemDB();

@@ -1,0 +1,8 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "ESNext", // Keep ES modules so rollup can apply tree-shaking
+    "rootDir": "./lib"
+  },
+  "exclude": ["cli", "test"]
+}

@@ -3,21 +3,18 @@ import commonjs from "@rollup/plugin-commonjs";
 import typescript from "@rollup/plugin-typescript";
 import { terser } from "rollup-plugin-terser";
 
-const extensions = [".ts"];
-
 export default {
-  input: "lib/jsongo.mem.ts",
+  input: "lib/mem/jsongo.mem.ts",
   output: {
     file: "build/jsongo.min.js",
     name: "Jsongo",
-    format: "umd",
+    format: "iife",
+    globals: {},
   },
   plugins: [
-    nodeResolve({
-      extensions,
-    }),
+    nodeResolve(),
     commonjs(),
-    typescript({ module: "ESNext" }),
+    typescript({ tsconfig: "./tsconfig.browser.json" }),
     terser(),
   ],
 };

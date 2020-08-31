@@ -1,5 +1,5 @@
-import { AJsongoDB, JsongoMemDB, JsongoFSDB } from "../lib/JsongoDB";
-import { parseJsongoRelationName } from "../lib/JsongoCollection";
+import { JsongoFSDB, JsongoMemDB } from "../lib";
+import { AJsongoDB, parseJsongoRelationName } from "../lib/shared";
 
 import test from "ava";
 import { Volume } from "memfs";

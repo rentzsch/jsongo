@@ -1,4 +1,4 @@
-import { JsongoFSDB } from "./JsongoDB";
+import { JsongoFSDB } from "./JsongoFSDB";
 import nodeFS from "fs";
 
 const db = (dirPath: string, fs?: typeof nodeFS) =>

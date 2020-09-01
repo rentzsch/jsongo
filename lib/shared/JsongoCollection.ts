@@ -92,18 +92,13 @@ export abstract class AJsongoCollection {
     return doc;
   }
 
-  insertMany(docs: Docs): Docs {
-    // TODO:
-    return [];
-  }
-
-  upsert(doc: GenericDoc): GenericDoc | null {
+  upsertOne(doc: GenericDoc): GenericDoc | null {
     let matchCount = 0;
     const query = new mingo.Query(doc);
     for (const docItr of this.docs()) {
       if (query.test(docItr)) {
         if (matchCount === 0) {
-          (doc as any)._id = (doc as any)._id;
+          doc._id = docItr._id;
         }
         matchCount++;
       }

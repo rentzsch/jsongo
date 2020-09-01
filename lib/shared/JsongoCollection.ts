@@ -38,6 +38,18 @@ export abstract class AJsongoCollection {
     }
   }
 
+  findOneOrFail(criteria: object): GenericDoc {
+    const doc = this.findOne(criteria);
+    if (doc === null) {
+      throw new Error(
+        `Could not find document with the following criteria: ${JSON.stringify(
+          criteria
+        )}`
+      );
+    }
+    return doc;
+  }
+
   docs(): Docs {
     if (this._docs === null) {
       this._readAndParseJson();

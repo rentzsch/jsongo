@@ -61,29 +61,40 @@ export abstract class AJsongoCollection {
     return this.docs().length;
   }
 
-  insertOne(doc: GenericDoc): GenericDoc {
+  insertOne(doc: GenericDoc, updateOnDuplicateKey = false): GenericDoc {
     const docs = this.docs();
     if (doc._id === undefined) {
       // Doesn't have an _id, generate one.
       doc._id = new ObjectID().toHexString();
     } else {
-      // Has an _id, probably an insert with a custom _id but may be a duplicate.
+      if (!ObjectID.isValid(doc._id)) {
+        throw new Error(`Invalid Object ID ${doc._id}`);
+      }
+
+      // Has an _id, probably an update but may be an insert with a custom _id.
       const docIdx = this._findDocumentIndex(new Query({ _id: doc._id }));
 
       if (docIdx === null) {
         // Didn't find an existing document with the same _id.
-        if (!ObjectID.isValid(doc._id)) {
-          throw new Error(`Invalid Object ID ${doc._id}`);
-        }
       } else {
-        // Found a duplicate, abort.
-        throw new Error(
-          `Document with _id ${doc._id} already exists in ${this._name}`
-        );
+        if (updateOnDuplicateKey) {
+          // It's an update, delete the original.
+          docs.splice(docIdx, 1);
+        } else {
+          // Update not allowed, abort.
+          throw new Error(
+            `Document with _id ${doc._id} already exists in ${this._name}`
+          );
+        }
       }
     }
     docs.push(doc);
     return doc;
+  }
+
+  insertMany(docs: Docs): Docs {
+    // TODO:
+    return [];
   }
 
   upsert(doc: GenericDoc): GenericDoc | null {
@@ -101,7 +112,7 @@ export abstract class AJsongoCollection {
     if (matchCount > 1) {
       return null;
     } else {
-      return this.insertOne(doc);
+      return this.insertOne(doc, true);
     }
   }
 
@@ -216,6 +227,7 @@ export function parseJsongoRelationName(fieldName: string): null | string {
   }
 }
 
+// TODO: distinguish between user input (any keys, including optional _id) and model (must have _id)
 export type GenericDoc = any;
 
 export type Docs = Array<GenericDoc>;

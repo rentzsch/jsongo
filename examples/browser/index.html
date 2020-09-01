@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Jsongo Memory DB Demo</title>
+  </head>
+  <body>
+    <h1>See console logs (<code>F12</code> / <code>Shift+Ctrl+J<code>)</h1>
+    <script src="./node_modules/jsongo/build/jsongo.min.js"></script>
+    <script>
+      const db = Jsongo.memDB();
+      db.users.save({ name: "guest" });
+      db.users.save({ name: "anonymous" });
+      const users = db.users.find({});
+      for (const user of users) {
+        console.log(user);
+      }
+    </script>
+  </body>
+</html>

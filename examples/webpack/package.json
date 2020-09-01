@@ -1,0 +1,20 @@
+{
+  "private": "true",
+  "scripts": {
+    "clean": "rm -rf dist",
+    "db": "mkdir -p db && echo '[]' > db/users.json",
+    "build": "yarn clean && webpack --mode production && yarn db",
+    "build:dev": "yarn clean && webpack --mode development && yarn db",
+    "run:browser": "node dist/browser.js",
+    "run:node": "node dist/node.js",
+    "test:tree-shaking": "! grep 'JsongoFSDB.js' dist/browser.js || echo 'Tree-shaking is broken!'"
+  },
+  "devDependencies": {
+    "webpack": "^4.44.1",
+    "webpack-cli": "^3.3.12",
+    "webpack-node-externals": "^2.5.2"
+  },
+  "dependencies": {
+    "jsongo": "../.."
+  }
+}

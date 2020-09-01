@@ -63,20 +63,20 @@ export abstract class AJsongoCollection {
 
   insertOne(doc: GenericDoc): GenericDoc {
     const docs = this.docs();
-    if ((doc as any)._id === undefined) {
+    if (doc._id === undefined) {
       // Doesn't have an _id, it's an insert.
-      (doc as any)._id = new ObjectID().toHexString();
+      doc._id = new ObjectID().toHexString();
     } else {
-      // Has an _id, probably an update but may be an insert with a custom _id.
-      const docIdx = this._findDocumentIndex(
-        new Query({ _id: (doc as any)._id })
-      );
+      // Has an _id, probably an insert with a custom _id but may be a duplicate.
+      const docIdx = this._findDocumentIndex(new Query({ _id: doc._id }));
 
       if (docIdx === null) {
         // Didn't find an existing document with the same _id, so it's an insert.
       } else {
-        // It's an update, delete the original.
-        docs.splice(docIdx, 1);
+        // Found a duplicate, abort.
+        throw new Error(
+          `Document with _id ${doc._id} already exists in ${this._name}`
+        );
       }
     }
     docs.push(doc);
@@ -213,5 +213,6 @@ export function parseJsongoRelationName(fieldName: string): null | string {
   }
 }
 
-export type GenericDoc = object;
+export type GenericDoc = any;
+
 export type Docs = Array<GenericDoc>;

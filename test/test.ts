@@ -17,7 +17,7 @@ test("fsdb", (t) => {
 
   const collection = memFSDB.addNewCollection("uno");
   t.is(collection.count(), 0);
-  collection.save({ name: "fred" });
+  collection.insertOne({ name: "fred" });
   t.is(collection.count(), 1);
   collection.saveFile();
 
@@ -43,7 +43,7 @@ test("fsck", (t) => {
   testAgainstMemAndMemFSDB(testDB);
   function testDB(db: AJsongoDB) {
     const person = db.addNewCollection("person");
-    person.save({_id:"Homer", "spouse(person_id)":"Marge"});
+    person.insertOne({_id:"Homer", "spouse(person_id)":"Marge"});
 
     const fsckResults1 = person.fsck();
   }

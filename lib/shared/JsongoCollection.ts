@@ -61,7 +61,7 @@ export abstract class AJsongoCollection {
     return this.docs().length;
   }
 
-  save(doc: GenericDoc): GenericDoc {
+  insertOne(doc: GenericDoc): GenericDoc {
     const docs = this.docs();
     if ((doc as any)._id === undefined) {
       // Doesn't have an _id, it's an insert.
@@ -98,7 +98,7 @@ export abstract class AJsongoCollection {
     if (matchCount > 1) {
       return null;
     } else {
-      return this.save(doc);
+      return this.insertOne(doc);
     }
   }
 

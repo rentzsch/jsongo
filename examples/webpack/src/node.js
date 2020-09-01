@@ -1,8 +1,8 @@
 import { fsDB } from "jsongo";
 
 const db = fsDB("./db");
-db.users.save({ name: "guest" });
-db.users.save({ name: "anonymous" });
+db.users.insertOne({ name: "guest" });
+db.users.insertOne({ name: "anonymous" });
 db.save();
 
 const users = db.users.find({});

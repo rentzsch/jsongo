@@ -64,14 +64,17 @@ export abstract class AJsongoCollection {
   insertOne(doc: GenericDoc): GenericDoc {
     const docs = this.docs();
     if (doc._id === undefined) {
-      // Doesn't have an _id, it's an insert.
+      // Doesn't have an _id, generate one.
       doc._id = new ObjectID().toHexString();
     } else {
       // Has an _id, probably an insert with a custom _id but may be a duplicate.
       const docIdx = this._findDocumentIndex(new Query({ _id: doc._id }));
 
       if (docIdx === null) {
-        // Didn't find an existing document with the same _id, so it's an insert.
+        // Didn't find an existing document with the same _id.
+        if (!ObjectID.isValid(doc._id)) {
+          throw new Error(`Invalid Object ID ${doc._id}`);
+        }
       } else {
         // Found a duplicate, abort.
         throw new Error(

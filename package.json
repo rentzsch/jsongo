@@ -22,7 +22,7 @@
     "json-validator-duplicated-keys": "^1.0.1",
     "mingo": "^3.0.6",
     "sort-keys": "^4.0.0",
-    "value-or-json": "^1.0.0",
+    "value-or-json": "^1.1.0",
     "yargs": "^15.4.1"
   },
   "devDependencies": {

@@ -1,4 +1,4 @@
-import { AJsongoDB, JsongoFSDB } from "./JsongoDB";
+import { AJsongoDB } from "./JsongoDB";
 
 import ObjectID from "bson-objectid";
 import mingo from "mingo";
@@ -6,10 +6,6 @@ import { Cursor } from "mingo/cursor";
 import { Query } from "mingo/query";
 import sortKeys from "sort-keys";
 import valueOrJson from "value-or-json";
-
-import path from "path";
-import fs from "fs";
-import { assert } from "mingo/util";
 
 //
 // AJsongoCollection
@@ -143,7 +139,7 @@ export abstract class AJsongoCollection {
         if (relationName !== null) {
           if (Array.isArray(value)) {
             // TODO
-            assert(false, "TODO615");
+            throw new Error("TODO615");
           } else {
             const relatedDocs = thisDB
               .collectionWithName(relationName)
@@ -202,57 +198,6 @@ export function parseJsongoRelationName(fieldName: string): null | string {
     return fieldName.substring(lastOpenParenIdx + 1, fieldName.length - 4);
   } else {
     return null;
-  }
-}
-
-//
-// JsongoMemCollection
-//
-
-export class JsongoMemCollection extends AJsongoCollection {
-  _readAndParseJson(): void {
-    this._docs = [];
-  }
-  saveFile(): void {
-    // No-op since the docs are already in memory.
-  }
-}
-
-//
-// JsongoFSCollection
-//
-
-export class JsongoFSCollection extends AJsongoCollection {
-  _readAndParseJson(): void {
-    try {
-      const jsonBuf = this._fs().readFileSync(this._filePath());
-      this._docs = JSON.parse(jsonBuf as any);
-    } catch (ex) {
-      if (ex.code === "ENOENT") {
-        this._docs = [];
-        this._isDirty = true;
-        // console.log("ENOENT", this);
-      } else {
-        throw ex;
-      }
-    }
-  }
-  saveFile(): void {
-    this._fs().writeFileSync(this._filePath(), this.toJson() + "\n");
-  }
-  _filePath() {
-    // Note: path.format({dir:"/", name:"uno", ext:".json"}) returns "//uno.json", which is weird but seemingly harmless.
-    return path.format({
-      dir: this._fsdb()._dirPath,
-      name: this._name,
-      ext: ".json",
-    });
-  }
-  _fsdb(): JsongoFSDB {
-    return this._db as JsongoFSDB;
-  }
-  _fs(): typeof fs {
-    return this._fsdb()._fs;
   }
 }
 

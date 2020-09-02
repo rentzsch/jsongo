@@ -1,0 +1,8 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "ESNext", // Keep ES modules for better module resolution
+    "rootDir": "./lib"
+  },
+  "exclude": ["cli", "test"]
+}

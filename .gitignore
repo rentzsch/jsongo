@@ -1,1 +1,7 @@
+build
+
 node_modules
+
+*.js
+
+*.log

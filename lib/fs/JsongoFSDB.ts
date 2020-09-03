@@ -1,12 +1,12 @@
 import { JsongoFSCollection } from "./JsongoFSCollection";
-import { AJsongoDB, AJsongoCollection } from "../shared";
+import { JsongoDB, JsongoCollection } from "../shared";
 import fs from "fs";
 
 //
 // JsongoFSDB
 //
 
-export class JsongoFSDB extends AJsongoDB {
+export class JsongoFSDB extends JsongoDB {
   _dirPath: string;
   _fs: typeof fs;
 
@@ -15,7 +15,7 @@ export class JsongoFSDB extends AJsongoDB {
     this._dirPath = args.dirPath;
     this._fs = args.fs ?? fs;
   }
-  addNewCollection(collectionName: string): AJsongoCollection {
+  addNewCollection(collectionName: string): JsongoCollection {
     if (this._collections.get(collectionName) !== undefined) {
       const err = new Error(
         `JsongoFSDB.addNewCollection: ${collectionName} already exists`

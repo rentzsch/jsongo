@@ -1,5 +1,5 @@
 import { JsongoFSDB } from "./JsongoFSDB";
-import { AJsongoCollection } from "../shared";
+import { JsongoCollection } from "../shared";
 import path from "path";
 import fs from "fs";
 
@@ -7,7 +7,7 @@ import fs from "fs";
 // JsongoFSCollection
 //
 
-export class JsongoFSCollection extends AJsongoCollection {
+export class JsongoFSCollection extends JsongoCollection {
   _readAndParseJson(): void {
     try {
       const jsonBuf = this._fs().readFileSync(this._filePath());

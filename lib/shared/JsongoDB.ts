@@ -1,18 +1,18 @@
-import { AJsongoCollection } from "./JsongoCollection";
+import { JsongoCollection } from "./JsongoCollection";
 
 //
-// AJsongoDB
+// JsongoDB
 //
 
-export abstract class AJsongoDB {
-  _collections: Map<string, AJsongoCollection>;
+export abstract class JsongoDB {
+  _collections: Map<string, JsongoCollection>;
   constructor() {
     this._collections = new Map();
   }
-  collections(): Array<AJsongoCollection> {
+  collections(): Array<JsongoCollection> {
     return Array.from(this._collections.values());
   }
-  collectionWithName(collectionName: string): AJsongoCollection {
+  collectionWithName(collectionName: string): JsongoCollection {
     const result = this.existingCollectionWithName(collectionName);
     if (result === null) {
       return this.addNewCollection(collectionName);
@@ -20,9 +20,9 @@ export abstract class AJsongoDB {
       return result;
     }
   }
-  existingCollectionWithName(collectionName: string): AJsongoCollection | null {
+  existingCollectionWithName(collectionName: string): JsongoCollection | null {
     const result = this._collections.get(collectionName);
     return result === undefined ? null : result;
   }
-  abstract addNewCollection(collectionName: string): AJsongoCollection;
+  abstract addNewCollection(collectionName: string): JsongoCollection;
 }

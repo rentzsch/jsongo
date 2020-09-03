@@ -1,4 +1,4 @@
-import { AJsongoDB } from "./JsongoDB";
+import { JsongoDB } from "./JsongoDB";
 
 import ObjectID from "bson-objectid";
 import mingo from "mingo";
@@ -8,16 +8,16 @@ import sortKeys from "sort-keys";
 import valueOrJson from "value-or-json";
 
 //
-// AJsongoCollection
+// JsongoCollection
 //
 
-export abstract class AJsongoCollection {
+export abstract class JsongoCollection {
   protected _name: string;
-  protected _db: AJsongoDB;
+  protected _db: JsongoDB;
   protected _docs: Docs | null;
   protected _isDirty: boolean;
 
-  constructor(args: AJsongoCollectionCtr) {
+  constructor(args: JsongoCollectionCtr) {
     this._name = args.name;
     this._db = args.db;
 
@@ -210,9 +210,9 @@ export abstract class AJsongoCollection {
   abstract _readAndParseJson(): void;
 }
 
-interface AJsongoCollectionCtr {
+interface JsongoCollectionCtr {
   name: string;
-  db: AJsongoDB;
+  db: JsongoDB;
 }
 
 export function parseJsongoRelationName(fieldName: string): null | string {

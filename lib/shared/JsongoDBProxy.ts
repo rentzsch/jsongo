@@ -1,8 +1,8 @@
-import { AJsongoDB } from "./JsongoDB";
+import { JsongoDB } from "./JsongoDB";
 
-export function createDBProxy(realDB: AJsongoDB): object {
+export function createDBProxy(realDB: JsongoDB): object {
   return new Proxy(realDB, {
-    get: function (target: AJsongoDB, prop: string) {
+    get: function (target: JsongoDB, prop: string) {
       if (prop === "then") {
         // Promise detection.
         return target;

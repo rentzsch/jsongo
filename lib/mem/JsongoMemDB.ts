@@ -1,12 +1,12 @@
 import { JsongoMemCollection } from "./JsongoMemCollection";
-import { AJsongoDB, AJsongoCollection } from "../shared";
+import { JsongoDB, JsongoCollection } from "../shared";
 
 //
 // JsongoMemDB
 //
 
-export class JsongoMemDB extends AJsongoDB {
-  addNewCollection(collectionName: string): AJsongoCollection {
+export class JsongoMemDB extends JsongoDB {
+  addNewCollection(collectionName: string): JsongoCollection {
     if (this._collections.get(collectionName) !== undefined) {
       const err = new Error(
         `JsongoMemDB.addNewCollection: ${collectionName} already exists`

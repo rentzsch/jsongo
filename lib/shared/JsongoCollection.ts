@@ -1,6 +1,7 @@
 import { JsongoDB } from "./JsongoDB";
+import { ObjectID } from "./JsongoIDType";
 
-import ObjectID from "bson-objectid";
+import BSONObjectID from "bson-objectid";
 import mingo from "mingo";
 import { Cursor } from "mingo/cursor";
 import { Query } from "mingo/query";
@@ -14,7 +15,7 @@ import valueOrJson from "value-or-json";
 export abstract class JsongoCollection {
   protected _name: string;
   protected _db: JsongoDB;
-  protected _docs: Docs | null;
+  protected _docs: Array<JsongoDoc> | null;
   protected _isDirty: boolean;
 
   constructor(args: JsongoCollectionCtr) {
@@ -29,7 +30,7 @@ export abstract class JsongoCollection {
     return mingo.find(this.docs(), criteria);
   }
 
-  findOne(criteria: object): GenericDoc | null {
+  findOne(criteria: object): JsongoDoc | null {
     const cursor = this.find(criteria);
     if (cursor.hasNext()) {
       return cursor.next();
@@ -38,7 +39,7 @@ export abstract class JsongoCollection {
     }
   }
 
-  findOneOrFail(criteria: object): GenericDoc {
+  findOneOrFail(criteria: object): JsongoDoc {
     const doc = this.findOne(criteria);
     if (doc === null) {
       throw new Error(
@@ -50,29 +51,29 @@ export abstract class JsongoCollection {
     return doc;
   }
 
-  findAll(criteria: object): Docs {
+  findAll(criteria: object): Array<JsongoDoc> {
     return this.find(criteria).all();
   }
 
-  docs(): Docs {
+  docs(): Array<JsongoDoc> {
     if (this._docs === null) {
       this._readAndParseJson();
     }
-    return this._docs as Docs;
+    return this._docs as Array<JsongoDoc>;
   }
 
   count(): number {
     return this.docs().length;
   }
 
-  insertOne(doc: GenericDoc, updateOnDuplicateKey = false): GenericDoc {
+  insertOne(doc: PartialDoc, updateOnDuplicateKey = false): JsongoDoc {
     const docs = this.docs();
     if (doc._id === undefined) {
       // Doesn't have an _id, generate one.
-      doc._id = new ObjectID().toHexString();
+      doc._id = new BSONObjectID().toHexString();
     } else {
-      if (!ObjectID.isValid(doc._id)) {
-        throw new Error(`Invalid Object ID ${doc._id}`);
+      if (!BSONObjectID.isValid(doc._id)) {
+        throw new Error(`Invalid BSON Object ID ${doc._id}`);
       }
 
       // Has an _id, probably an update but may be an insert with a custom _id.
@@ -92,11 +93,13 @@ export abstract class JsongoCollection {
         }
       }
     }
-    docs.push(doc);
-    return doc;
+    // At this point, doc has an _id.
+    const newDoc = doc as JsongoDoc;
+    docs.push(newDoc);
+    return newDoc;
   }
 
-  upsertOne(doc: GenericDoc): GenericDoc | null {
+  upsertOne(doc: PartialDoc): JsongoDoc | null {
     let matchCount = 0;
     const query = new mingo.Query(doc);
     for (const docItr of this.docs()) {
@@ -157,8 +160,9 @@ export abstract class JsongoCollection {
     const errors: object[] = [];
 
     for (const docItr of this.docs()) {
+      // TODO
     }
-    function fsckDoc(doc: GenericDoc) {
+    function fsckDoc(doc: JsongoDoc) {
       for (const [key, value] of Object.entries(doc)) {
         const relationName = parseJsongoRelationName(key);
         if (relationName !== null) {
@@ -226,7 +230,14 @@ export function parseJsongoRelationName(fieldName: string): null | string {
   }
 }
 
-// TODO: distinguish between user input (any keys, including optional _id) and model (must have _id)
-export type GenericDoc = any;
+// POJO with an obligatory _id key
+export interface JsongoDoc {
+  _id: ObjectID;
+  [key: string]: any;
+}
 
-export type Docs = Array<GenericDoc>;
+// User-supplied POJO with an optional _id key
+export interface PartialDoc {
+  _id?: ObjectID;
+  [key: string]: any;
+}

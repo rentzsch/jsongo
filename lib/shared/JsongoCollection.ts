@@ -50,6 +50,10 @@ export abstract class AJsongoCollection {
     return doc;
   }
 
+  findAll(criteria: object): Docs {
+    return this.find(criteria).all();
+  }
+
   docs(): Docs {
     if (this._docs === null) {
       this._readAndParseJson();

@@ -199,8 +199,6 @@ export abstract class JsongoCollection {
     }
   }
 
-  abstract saveFile(): void;
-
   protected _findDocumentIndex(query: Query) {
     const docs = this.docs();
     for (let docIdx = 0; docIdx < docs.length; docIdx++) {

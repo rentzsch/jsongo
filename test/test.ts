@@ -1,5 +1,5 @@
 import { JsongoFSDB, JsongoMemDB } from "../lib";
-import { AJsongoDB, parseJsongoRelationName } from "../lib/shared";
+import { JsongoDB, parseJsongoRelationName } from "../lib/shared";
 
 import test from "ava";
 import { Volume } from "memfs";
@@ -19,7 +19,6 @@ test("fsdb", (t) => {
   t.is(collection.count(), 0);
   collection.insertOne({ name: "fred" });
   t.is(collection.count(), 1);
-  collection.saveFile();
 
   t.deepEqual(vol.readdirSync("/"), ["uno.json"]);
 
@@ -41,7 +40,7 @@ test("parseJsongoRelationName", (t) => {
 /*
 test("fsck", (t) => {
   testAgainstMemAndMemFSDB(testDB);
-  function testDB(db: AJsongoDB) {
+  function testDB(db: JsongoDB) {
     const person = db.addNewCollection("person");
     person.insertOne({_id:"Homer", "spouse(person_id)":"Marge"});
 
@@ -51,7 +50,7 @@ test("fsck", (t) => {
 */
 test("don't allow duplicate collection names", (t) => {
   testAgainstMemAndMemFSDB(testDB);
-  function testDB(db: AJsongoDB) {
+  function testDB(db: JsongoDB) {
     db.addNewCollection("uno");
     t.throws(
       () => {

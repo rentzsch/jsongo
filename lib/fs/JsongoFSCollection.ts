@@ -1,5 +1,5 @@
 import { JsongoFSDB } from "./JsongoFSDB";
-import { JsongoCollection } from "../shared";
+import { JsongoCollection, PartialDoc, JsongoDoc } from "../shared";
 import path from "path";
 import fs from "fs";
 
@@ -22,7 +22,12 @@ export class JsongoFSCollection extends JsongoCollection {
       }
     }
   }
-  saveFile(): void {
+  insertOne(doc: PartialDoc, updateOnDuplicateKey = false): JsongoDoc {
+    const newDoc = super.insertOne(doc, updateOnDuplicateKey);
+    this._persistFile();
+    return newDoc;
+  }
+  _persistFile(): void {
     this._fs().writeFileSync(this._filePath(), this.toJson() + "\n");
   }
   _filePath() {

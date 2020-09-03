@@ -30,11 +30,6 @@ export class JsongoFSDB extends JsongoDB {
     this._collections.set(collectionName, collection);
     return collection;
   }
-  save() {
-    for (const collection of this._collections.values()) {
-      collection.saveFile();
-    }
-  }
 }
 
 interface JsongoFSDBCtr {

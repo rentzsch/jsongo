@@ -1,4 +1,4 @@
-import { jsonFileNames } from "../utils";
+import { fsDB } from "../../lib";
 import { CommandModule, Arguments } from "yargs";
 import findDupKeys from "find-duplicated-property-keys";
 import fs from "fs";
@@ -35,8 +35,10 @@ interface FsckArgs extends Arguments {
 function fsckCmd(argv: Arguments) {
   const { dataDir } = argv as FsckArgs;
 
-  for (const jsonFileName of jsonFileNames(dataDir)) {
-    console.log(`checking ${jsonFileName}`);
+  const db = fsDB(dataDir);
+
+  for (const jsonFileName of db._jsonFileNames()) {
+    console.log(`Checking ${jsonFileName}`);
     const jsonBuf = fs.readFileSync(jsonFileName, "utf-8");
     const dups = findDupKeys(jsonBuf);
 

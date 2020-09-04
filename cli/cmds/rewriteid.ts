@@ -1,7 +1,5 @@
-import { jsonFileNames } from "../utils";
+import { fsDB } from "../../lib";
 import { CommandModule, Arguments } from "yargs";
-import fs from "fs";
-import path from "path";
 
 export default {
   command: "rewriteid",
@@ -45,14 +43,15 @@ function rewriteIDCmd(argv: Arguments) {
 
   const collectionRelationKey = `${collectionName}_id`;
 
-  for (const jsonFileName of jsonFileNames(dataDir)) {
-    const jsonBuf = fs.readFileSync(jsonFileName, "utf-8");
-    const json = JSON.parse(jsonBuf);
+  const db = fsDB(dataDir);
+
+  for (const collection of db.collections()) {
+    const docs = collection.docs();
     let dirty = false;
 
-    if (path.parse(jsonFileName).name === collectionName) {
+    if (collection.name() === collectionName) {
       // The collection that hold the document with oldID.
-      for (const doc of json) {
+      for (const doc of docs) {
         if (doc._id === oldID) {
           doc._id = newID;
           dirty = true;
@@ -60,7 +59,7 @@ function rewriteIDCmd(argv: Arguments) {
       }
     } else {
       // A collection that may have a reference to oldID.
-      for (const document of json) {
+      for (const document of docs) {
         let value = document[collectionRelationKey];
         if (value === undefined) continue;
 
@@ -77,7 +76,7 @@ function rewriteIDCmd(argv: Arguments) {
       }
     }
     if (dirty) {
-      fs.writeFileSync(jsonFileName, JSON.stringify(json, null, 2));
+      collection._saveFile();
     }
   }
 }

@@ -1,7 +1,5 @@
-import { jsonFileNames } from "../utils";
 import { fsDB } from "../../";
 import { CommandModule, Arguments } from "yargs";
-import path from "path";
 
 export default {
   command: "fmt",
@@ -23,9 +21,8 @@ interface FmtArgs extends Arguments {
 function fmtCmd(argv: Arguments) {
   const { dataDir } = argv as FmtArgs;
   const db = fsDB(dataDir);
-  for (const jsonFileName of jsonFileNames(dataDir)) {
-    const collectionName = path.parse(jsonFileName).name;
-    db[collectionName].docs();
+  for (const collection of db.collections()) {
+    collection.docs();
   }
   db.save();
 }

@@ -27,9 +27,9 @@ function evalCmd(argv: Arguments) {
   const { dataDir, code } = argv as EvalArgs;
 
   const db = fsDB(dataDir);
-  const cmdFunctionStr = `((db) => {
+  const cmdFunctionStr = `(() => {
     "use strict";
     return (${code});
-  })(db)`;
+  })()`;
   console.log(eval(cmdFunctionStr));
 }

@@ -1,6 +1,5 @@
-import { jsonFileNames } from "../utils";
+import { fsDB } from "../../lib";
 import { CommandModule, Arguments } from "yargs";
-import path from "path";
 
 export default {
   command: "fsck",
@@ -21,11 +20,6 @@ interface LsArgs extends Arguments {
 
 function lsCmd(argv: Arguments) {
   const { dataDir } = argv as LsArgs;
-  console.log(
-    JSON.stringify(
-      jsonFileNames(dataDir).map((fileName) => path.parse(fileName).name),
-      null,
-      2
-    )
-  );
+  const db = fsDB(dataDir);
+  console.log(JSON.stringify(db.collectionNames(), null, 2));
 }

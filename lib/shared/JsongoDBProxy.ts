@@ -1,6 +1,6 @@
 import { JsongoDB } from "./JsongoDB";
 
-export function createDBProxy(realDB: JsongoDB): object {
+export function createDBProxy(realDB: JsongoDB): any {
   return new Proxy(realDB, {
     get: function (target: JsongoDB, prop: string) {
       if (prop === "then") {

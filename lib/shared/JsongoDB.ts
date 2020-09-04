@@ -25,4 +25,5 @@ export abstract class JsongoDB {
     return result === undefined ? null : result;
   }
   abstract addNewCollection(collectionName: string): JsongoCollection;
+  abstract save(): void;
 }

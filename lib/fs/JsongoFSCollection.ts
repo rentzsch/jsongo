@@ -24,10 +24,10 @@ export class JsongoFSCollection extends JsongoCollection {
   }
   insertOne(doc: PartialDoc, updateOnDuplicateKey = false): JsongoDoc {
     const newDoc = super.insertOne(doc, updateOnDuplicateKey);
-    this._persistFile();
+    this._saveFile();
     return newDoc;
   }
-  _persistFile(): void {
+  _saveFile(): void {
     this._fs().writeFileSync(this._filePath(), this.toJson() + "\n");
   }
   _filePath() {

@@ -1,12 +1,12 @@
 import { JsongoMemCollection } from "./JsongoMemCollection";
-import { JsongoDB, JsongoCollection } from "../shared";
+import { JsongoDB } from "../shared";
 
 //
 // JsongoMemDB
 //
 
 export class JsongoMemDB extends JsongoDB {
-  addNewCollection(collectionName: string): JsongoCollection {
+  addNewCollection(collectionName: string): JsongoMemCollection {
     if (this._collections.get(collectionName) !== undefined) {
       const err = new Error(
         `JsongoMemDB.addNewCollection: ${collectionName} already exists`
@@ -20,5 +20,8 @@ export class JsongoMemDB extends JsongoDB {
     });
     this._collections.set(collectionName, collection);
     return collection;
+  }
+  save(): void {
+    // No-op since the docs are already in memory.
   }
 }

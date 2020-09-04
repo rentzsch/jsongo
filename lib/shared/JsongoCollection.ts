@@ -26,6 +26,10 @@ export abstract class JsongoCollection {
     this._isDirty = false;
   }
 
+  name() {
+    return this._name;
+  }
+
   find(criteria: object): Cursor {
     return mingo.find(this.docs(), criteria);
   }

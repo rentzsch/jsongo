@@ -12,6 +12,9 @@ export abstract class JsongoDB {
   collections(): Array<JsongoCollection> {
     return Array.from(this._collections.values());
   }
+  collectionNames(): Array<JsongoCollection["_name"]> {
+    return Array.from(this._collections.keys());
+  }
   collectionWithName(collectionName: string): JsongoCollection {
     const result = this.existingCollectionWithName(collectionName);
     if (result === null) {

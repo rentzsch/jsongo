@@ -10,8 +10,8 @@ import fs from "fs";
 export class JsongoFSCollection extends JsongoCollection {
   _readAndParseJson(): void {
     try {
-      const jsonBuf = this._fs().readFileSync(this._filePath());
-      this._docs = JSON.parse(jsonBuf as any);
+      const jsonBuf = this._fs().readFileSync(this._filePath(), "utf-8");
+      this._docs = JSON.parse(jsonBuf);
     } catch (ex) {
       if (ex.code === "ENOENT") {
         this._docs = [];
@@ -30,7 +30,7 @@ export class JsongoFSCollection extends JsongoCollection {
   _saveFile(): void {
     this._fs().writeFileSync(this._filePath(), this.toJson() + "\n");
   }
-  _filePath() {
+  _filePath(): string {
     // Note: path.format({dir:"/", name:"uno", ext:".json"}) returns "//uno.json", which is weird but seemingly harmless.
     return path.format({
       dir: this._fsdb()._dirPath,

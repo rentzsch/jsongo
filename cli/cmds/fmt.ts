@@ -1,4 +1,4 @@
-import { fsDB } from "../../";
+import { fsDB } from "../../lib";
 import { CommandModule, Arguments } from "yargs";
 
 export default {

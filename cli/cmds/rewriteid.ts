@@ -3,7 +3,7 @@ import { CommandModule, Arguments } from "yargs";
 
 export default {
   command: "rewriteid",
-  describe: "Replaces all occurances of object ID",
+  describe: "replace all occurances of object ID",
   handler: rewriteIDCmd,
   builder: {
     dataDir: {
@@ -11,7 +11,7 @@ export default {
       type: "string",
       default: ".",
     },
-    collectionName: {
+    collection: {
       describe: "Name of the collection",
       demandOption: true,
       type: "string",
@@ -37,7 +37,12 @@ interface RewriteIDArgs extends Arguments {
 }
 
 function rewriteIDCmd(argv: Arguments) {
-  const { dataDir, collectionName, oldID, newID } = argv as RewriteIDArgs;
+  const {
+    dataDir,
+    collection: collectionName,
+    oldID,
+    newID,
+  } = argv as RewriteIDArgs;
 
   // TODO preflight to ensure newID is unqiue in collection.
 

@@ -3,7 +3,7 @@ import { CommandModule, Arguments } from "yargs";
 
 export default {
   command: "eval",
-  describe: "Evaluates given JavaScript code",
+  describe: "evaluate given JavaScript code",
   handler: evalCmd,
   builder: {
     dataDir: {

@@ -2,8 +2,8 @@ import { fsDB } from "../../lib";
 import { CommandModule, Arguments } from "yargs";
 
 export default {
-  command: "fsck",
-  describe: "Lists collection names",
+  command: "ls",
+  describe: "list collection names",
   handler: lsCmd,
   builder: {
     dataDir: {

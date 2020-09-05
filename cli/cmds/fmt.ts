@@ -3,7 +3,7 @@ import { CommandModule, Arguments } from "yargs";
 
 export default {
   command: "fmt",
-  describe: "Sorts data records",
+  describe: "normalize and sort data records",
   handler: fmtCmd,
   builder: {
     dataDir: {

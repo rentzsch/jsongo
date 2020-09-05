@@ -5,7 +5,7 @@ import fs from "fs";
 
 export default {
   command: "fsck",
-  describe: "Checks consistency of data",
+  describe: "check data consistency",
   handler: fsckCmd,
   builder: {
     dataDir: {
@@ -37,13 +37,18 @@ function fsckCmd(argv: Arguments) {
 
   const db = fsDB(dataDir);
 
-  for (const jsonFileName of db._jsonFileNames()) {
-    console.log(`Checking ${jsonFileName}`);
-    const jsonBuf = fs.readFileSync(jsonFileName, "utf-8");
+  for (const collection of db.collections()) {
+    const filePath = collection._filePath();
+    console.log(`Checking ${filePath}`);
+    const jsonBuf = fs.readFileSync(filePath, "utf-8");
     const dups = findDupKeys(jsonBuf);
 
     for (const record of dups) {
-      console.error(`Found duplicate key: ${record.key}`);
+      console.error(
+        `Found duplicate key: ${collection.name()}${record.parent.key}.${
+          record.key
+        }`
+      );
     }
   }
 }

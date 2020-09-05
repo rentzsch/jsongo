@@ -5,7 +5,7 @@ import { JsongoDB } from "../shared";
 // JsongoMemDB
 //
 
-export class JsongoMemDB extends JsongoDB {
+export class JsongoMemDB extends JsongoDB<JsongoMemCollection> {
   addNewCollection(collectionName: string): JsongoMemCollection {
     if (this._collections.get(collectionName) !== undefined) {
       const err = new Error(
@@ -14,13 +14,11 @@ export class JsongoMemDB extends JsongoDB {
       err.name = "JsongoDuplicateCollectionName";
       throw err;
     }
-    const collection = new JsongoMemCollection({
-      name: collectionName,
-      db: this,
-    });
+    const collection = new JsongoMemCollection(collectionName, this);
     this._collections.set(collectionName, collection);
     return collection;
   }
+
   save(): void {
     // No-op since the docs are already in memory.
   }

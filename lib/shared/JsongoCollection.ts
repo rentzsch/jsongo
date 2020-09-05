@@ -12,23 +12,40 @@ import valueOrJson from "value-or-json";
 // JsongoCollection
 //
 
-export abstract class JsongoCollection {
-  protected _name: string;
-  protected _db: JsongoDB;
-  protected _docs: Array<JsongoDoc> | null;
-  protected _isDirty: boolean;
+export abstract class JsongoCollection<
+  AJsongoDB extends JsongoDB<JsongoCollection> = JsongoDB
+> {
+  protected _docs: Array<JsongoDoc> | null = null;
+  protected _isDirty: boolean = false;
 
-  constructor(args: JsongoCollectionCtr) {
-    this._name = args.name;
-    this._db = args.db;
+  constructor(protected _name: string, protected _db: AJsongoDB) {}
 
-    this._docs = null;
-    this._isDirty = false;
+  //
+  // Getters
+  //
+
+  count(): number {
+    return this.docs().length;
+  }
+
+  docs(): Array<JsongoDoc> {
+    if (this._docs === null) {
+      this._readAndParseJson();
+    }
+    return this._docs as Array<JsongoDoc>;
+  }
+
+  isDirty() {
+    return this._isDirty;
   }
 
   name() {
     return this._name;
   }
+
+  //
+  // Queries
+  //
 
   find(criteria: object): Cursor {
     return mingo.find(this.docs(), criteria);
@@ -57,17 +74,6 @@ export abstract class JsongoCollection {
 
   findAll(criteria: object): Array<JsongoDoc> {
     return this.find(criteria).all();
-  }
-
-  docs(): Array<JsongoDoc> {
-    if (this._docs === null) {
-      this._readAndParseJson();
-    }
-    return this._docs as Array<JsongoDoc>;
-  }
-
-  count(): number {
-    return this.docs().length;
   }
 
   insertOne(doc: PartialDoc, updateOnDuplicateKey = false): JsongoDoc {
@@ -131,10 +137,6 @@ export abstract class JsongoCollection {
       this.docs().splice(docIdx, 1);
       return { deletedCount: 1 };
     }
-  }
-
-  isDirty() {
-    return this._isDirty;
   }
 
   toJsonObj() {
@@ -214,11 +216,6 @@ export abstract class JsongoCollection {
   }
 
   abstract _readAndParseJson(): void;
-}
-
-interface JsongoCollectionCtr {
-  name: string;
-  db: JsongoDB;
 }
 
 export function parseJsongoRelationName(fieldName: string): null | string {

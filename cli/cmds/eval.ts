@@ -9,11 +9,12 @@ export default {
     dataDir: {
       describe: "Path to the data directory",
       type: "string",
-      default: ".",
+      demandOption: true,
     },
     code: {
       describe: "Block of code to run (has `db` variable in local scope)",
       type: "string",
+      demandOption: true,
     },
   },
 } as CommandModule;

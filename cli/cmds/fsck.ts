@@ -11,7 +11,7 @@ export default {
     dataDir: {
       describe: "Path to the data directory",
       type: "string",
-      default: ".",
+      demandOption: true,
     },
   },
 } as CommandModule;

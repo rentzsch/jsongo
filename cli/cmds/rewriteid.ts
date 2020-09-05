@@ -9,7 +9,7 @@ export default {
     dataDir: {
       describe: "Path to the data directory",
       type: "string",
-      default: ".",
+      demandOption: true,
     },
     collection: {
       describe: "Name of the collection",

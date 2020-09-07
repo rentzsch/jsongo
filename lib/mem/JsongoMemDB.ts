@@ -20,8 +20,4 @@ export class JsongoMemDB extends JsongoDB<JsongoMemCollection> {
     this._collections.set(collectionName, collection);
     return collection;
   }
-
-  save(): void {
-    // No-op since the docs are already in memory.
-  }
 }

@@ -6,6 +6,8 @@ import { JsongoDB } from "../shared";
 //
 
 export class JsongoMemDB extends JsongoDB<JsongoMemCollection> {
+  protected _collections: Map<string, JsongoMemCollection> = new Map();
+
   addNewCollection(collectionName: string): JsongoMemCollection {
     if (this._collections.get(collectionName) !== undefined) {
       const err = new Error(

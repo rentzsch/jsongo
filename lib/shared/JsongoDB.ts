@@ -7,7 +7,7 @@ import { JsongoCollection } from "./JsongoCollection";
 export abstract class JsongoDB<
   AJsongoCollection extends JsongoCollection<JsongoDB> = JsongoCollection<any>
 > {
-  protected _collections: Map<string, AJsongoCollection> = new Map();
+  protected abstract _collections: Map<string, AJsongoCollection>;
 
   collections(): Array<AJsongoCollection> {
     return Array.from(this._collections.values());

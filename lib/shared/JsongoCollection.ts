@@ -76,16 +76,11 @@ export abstract class JsongoCollection<
     return this.find(criteria).all();
   }
 
-  insertOne(doc: PartialDoc, updateOnDuplicateKey = false): JsongoDoc {
-    const docs = this.docs();
+  _prepareForInsert(doc: PartialDoc, updateOnDuplicateKey = false): JsongoDoc {
     if (doc._id === undefined) {
       // Doesn't have an _id, generate one.
       doc._id = new BSONObjectID().toHexString();
     } else {
-      if (!BSONObjectID.isValid(doc._id)) {
-        throw new Error(`Invalid BSON Object ID ${doc._id}`);
-      }
-
       // Has an _id, probably an update but may be an insert with a custom _id.
       const docIdx = this._findDocumentIndex(new Query({ _id: doc._id }));
 
@@ -94,7 +89,7 @@ export abstract class JsongoCollection<
       } else {
         if (updateOnDuplicateKey) {
           // It's an update, delete the original.
-          docs.splice(docIdx, 1);
+          this.docs().splice(docIdx, 1);
         } else {
           // Update not allowed, abort.
           throw new Error(
@@ -104,9 +99,38 @@ export abstract class JsongoCollection<
       }
     }
     // At this point, doc has an _id.
-    const newDoc = doc as JsongoDoc;
-    docs.push(newDoc);
+    return doc as JsongoDoc;
+  }
+
+  insertOne(doc: PartialDoc, updateOnDuplicateKey = false): JsongoDoc {
+    const newDoc = this._prepareForInsert(doc, updateOnDuplicateKey);
+    this.docs().push(newDoc);
     return newDoc;
+  }
+
+  insertMany(
+    docs: Array<PartialDoc>,
+    updateOnDuplicateKey = false
+  ): Array<JsongoDoc> {
+    // Duplicate key detection.
+    if (!updateOnDuplicateKey) {
+      const usedIds: Record<string, boolean> = {};
+
+      docs.forEach((doc) => {
+        if (doc._id !== undefined) {
+          if (usedIds[doc._id] === true) {
+            throw new Error(`Duplicate key not allowed ${doc._id}`);
+          }
+          usedIds[doc._id] = true;
+        }
+      });
+    }
+
+    const newDocs = docs.map((doc) =>
+      this._prepareForInsert(doc, updateOnDuplicateKey)
+    );
+    this.docs().push(...newDocs);
+    return newDocs;
   }
 
   upsertOne(doc: PartialDoc): JsongoDoc | null {

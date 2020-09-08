@@ -72,46 +72,6 @@ Sorting Object keys makes Jsongo even slower, but greatly aids in creating simpl
 
 Keys are sorted with [Array.prototype.sort()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort) using the standard `compareFunction` (a custom one isn't supplied).
 
-A Collection JSON file comes in one of two _shapes_, the default _Object shape_ or the optional _Array shape_. I use the word "shape" here because the word format is already overloaded with two meanings (data format and format subcommand) in Jsongo.
-
-Here's an example of a collection JSON file which has the default Object shape:
-
-```json
-{
-  "fflintstone": {
-    "firstName": "Fred",
-    "lastName": "Flintstone"
-  },
-  "wflintstone": {
-    "firstName": "Wilma",
-    "lastName": "Flintstone"
-  }
-}
-```
-
-Here's the same data in Array shape:
-
-```json
-[
-  {
-    "_id": "fflintstone",
-    "firstName": "Fred",
-    "lastName": "Flintstone"
-  },
-  {
-    "_id": "wflintstone",
-    "firstName": "Wilma",
-    "lastName": "Flintstone"
-  }
-]
-```
-
-These are semantically equivalent.
-
-Object shape is slightly smaller on disk, smaller in memory, faster to read, and initially faster to access (when looking up documents by their `_id`).
-
-Array shape has the advantage that it exactly mirrors the in-memory the Jsongo client uses when using documents, it works better with `jsongo fmt` when hand-appending new documents (`fmt` will auto-insert missing `_id`s), and that it can more easily represent document which have compound `_id`'s.
-
 ## Relations
 
 When a document has a key that ends in `_id`, it's interpreted to mean a foreign key.
@@ -152,29 +112,34 @@ In Node, you can use either driver. For example:
 
 ```js
 import { fsDB } from "jsongo";
-const db = fsDB("./path/to/simpsons-db");
+const db = fsDB("./path/to/cartoon");
 const simpsonFamilyMembers = db.people.findAll({ family_id: "Simpson" });
 console.log(simpsonFamilyMembers);
 ```
 
 ```json
-{
-  "Homer": {
+[
+  {
+    "_id": "Bart",
     "family_id": "Simpson"
   },
-  "Marge": {
+  {
+    "_id": "Homer",
     "family_id": "Simpson"
   },
-  "Bart": {
+  {
+    "_id": "Lisa",
     "family_id": "Simpson"
   },
-  "Lisa": {
+  {
+    "_id": "Maggie",
     "family_id": "Simpson"
   },
-  "Maggie": {
+  {
+    "_id": "Marge",
     "family_id": "Simpson"
   }
-}
+]
 ```
 
 <!-- TODO FIX ordering above -->

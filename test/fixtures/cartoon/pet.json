@@ -1,0 +1,34 @@
+[
+  {
+    "_id": "Astro",
+    "family_id": "Jetson"
+  },
+  {
+    "_id": "Dino",
+    "family_id": "Flintstone"
+  },
+  {
+    "_id": "Santa's Little Helper",
+    "family_id": "Simpson"
+  },
+  {
+    "_id": "Snowball I",
+    "family_id": "Simpson"
+  },
+  {
+    "_id": "Snowball II",
+    "family_id": "Simpson"
+  },
+  {
+    "_id": "Snowball III",
+    "family_id": "Simpson"
+  },
+  {
+    "_id": "Snowball IV",
+    "family_id": "Simpson"
+  },
+  {
+    "_id": "Snowball V",
+    "family_id": "Simpson"
+  }
+]

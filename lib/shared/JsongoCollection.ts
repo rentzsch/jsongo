@@ -80,108 +80,109 @@ export abstract class JsongoCollection<
     return this.find(criteria).hasNext();
   }
 
-  insertOne(doc: PartialDoc, replaceOnDuplicateKey = false): JsongoDoc {
-    const docs = this.docs();
+  insertOne(doc: PartialDoc): JsongoDoc {
     if (doc._id === undefined) {
       // Doesn't have an _id, generate one.
       doc._id = new BSONObjectID().toHexString();
     } else {
-      // Has an _id, probably need to replace but may be an insert with a custom _id.
-      const docIdx = this._findDocumentIndex({ _id: doc._id });
+      // Has an _id, probably a duplicate but could be a custom _id.
+      if (this.exists({ _id: doc._id })) {
+        // Duplicates not allowed, abort.
+        throw new Error(
+          `Document with _id ${doc._id} already exists in ${this._name}`
+        );
+      }
+    }
+    // At this point, doc has an _id.
+    const newDoc = doc as JsongoDoc;
+    this.docs().push(newDoc);
+    return newDoc;
+  }
 
-      if (docIdx === null) {
-        // Didn't find an existing document with the same _id.
-      } else {
-        if (replaceOnDuplicateKey) {
-          // Found by the key, replace the original.
-          const newDoc = doc as JsongoDoc;
-          docs[docIdx] = newDoc;
-          return newDoc;
-        } else {
-          // Update not allowed, abort.
+  insertMany(docs: Array<PartialDoc>): Array<JsongoDoc> {
+    // Perform mass validation.
+    const usedIds: Record<string, boolean> = {};
+    for (const doc of docs) {
+      if (doc._id !== undefined) {
+        // _id may not appear twice.
+        if (usedIds[doc._id] === true) {
+          throw new Error(`Duplicate key not allowed ${doc._id}`);
+        }
+        usedIds[doc._id] = true;
+
+        // _id must be vacant.
+        if (this.exists({ _id: doc._id })) {
           throw new Error(
             `Document with _id ${doc._id} already exists in ${this._name}`
           );
         }
       }
     }
-    // At this point, doc has an _id.
-    const newDoc = doc as JsongoDoc;
-    docs.push(newDoc);
-    return newDoc;
-  }
 
-  insertMany(
-    docs: Array<PartialDoc>,
-    replaceOnDuplicateKey = false
-  ): Array<JsongoDoc> {
-    const usedIds: Record<string, boolean> = {};
-
-    if (!replaceOnDuplicateKey) {
-      // Perform mass validation before any write takes place.
-      for (const doc of docs) {
-        if (doc._id !== undefined) {
-          // ID may not appear twice.
-          if (usedIds[doc._id] === true) {
-            throw new Error(`Duplicate key not allowed ${doc._id}`);
-          }
-          usedIds[doc._id] = true;
-
-          // ID must be vacant.
-          const idTaken = this.exists({ _id: doc._id });
-          if (idTaken) {
-            throw new Error(
-              `Document with _id ${doc._id} already exists in ${this._name}`
-            );
-          }
-        }
+    // Generate any missing _id's.
+    for (const doc of docs) {
+      if (doc._id === undefined) {
+        doc._id = new BSONObjectID().toHexString();
       }
     }
 
+    // Batch insert.
+    const newDocs = docs as Array<JsongoDoc>;
+    this.docs().push(...newDocs);
+
+    return newDocs;
+  }
+
+  upsertOne(doc: PartialDoc): JsongoDoc {
+    if (doc._id !== undefined) {
+      // Has an _id, probably an update but could be a custom _id.
+      const docIdx = this._findDocumentIndex({ _id: doc._id });
+      if (docIdx !== null) {
+        // Found the match, replace.
+        const newDoc = doc as JsongoDoc;
+        this.docs()[docIdx] = newDoc;
+        return newDoc;
+      }
+    }
+
+    return this.insertOne(doc);
+  }
+
+  upsertMany(docs: Array<PartialDoc>): Array<JsongoDoc> {
+    // Perform mass validation.
+    const usedIds: Record<string, boolean> = {};
+    for (const doc of docs) {
+      if (doc._id !== undefined) {
+        // _id may not appear twice.
+        if (usedIds[doc._id] === true) {
+          throw new Error(`Duplicate key not allowed ${doc._id}`);
+        }
+        usedIds[doc._id] = true;
+      }
+    }
+
+    // Filter out docs that need to be batch-inserted.
     const newDocs = docs.filter((doc) => {
       if (doc._id === undefined) {
         // Doesn't have an _id, generate one.
         doc._id = new BSONObjectID().toHexString();
       } else {
-        // Has an _id, probably need to replace but may be an insert with a custom _id.
+        // Has an _id, probably an update but could be a custom _id.
         const docIdx = this._findDocumentIndex({ _id: doc._id });
         if (docIdx !== null) {
-          // Found by the key, replace the original.
-          this.docs()[docIdx] = doc as JsongoDoc;
+          // Found the match, replace.
+          const newDoc = doc as JsongoDoc;
+          this.docs()[docIdx] = newDoc;
+          // Doesn't qualify for insert.
           return false;
         }
       }
-
       return true;
     }) as Array<JsongoDoc>;
 
-    // Batch insert.
     this.docs().push(...newDocs);
 
     return docs as Array<JsongoDoc>;
-  }
-
-  upsertOne(doc: PartialDoc): JsongoDoc | null {
-    if (doc._id !== undefined) {
-      throw new Error("Cannot upsert a doc with an _id");
-    }
-
-    const docs = this.find(doc);
-
-    if (docs.hasNext()) {
-      // Found at least one doc with the same contents.
-      const match = docs.next();
-
-      if (docs.hasNext()) {
-        // There is more than one match, bail out.
-        return null;
-      } else {
-        // Set existing doc's _id to indicate an update.
-        doc._id = match._id;
-      }
-    }
-
-    return this.insertOne(doc, true);
   }
 
   deleteOne(criteria: object): { deletedCount: number } {

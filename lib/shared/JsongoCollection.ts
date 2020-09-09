@@ -1,12 +1,11 @@
 import { JsongoDB } from "./JsongoDB";
-import { ObjectID } from "./JsongoIDType";
 import {
   DocumentNotFound,
   DuplicateDocumentID,
   DuplicateInputID,
 } from "./JsongoError";
 
-import BSONObjectID from "bson-objectid";
+import ObjectID from "bson-objectid";
 import mingo from "mingo";
 import { Cursor } from "mingo/cursor";
 import { Query } from "mingo/query";
@@ -81,10 +80,10 @@ export abstract class JsongoCollection<
     return this.find(criteria).hasNext();
   }
 
-  insertOne(doc: PartialDoc): JsongoDoc {
+  insertOne(doc: InputDoc): JsongoDoc {
     if (doc._id === undefined) {
       // Doesn't have an _id, generate one.
-      doc._id = new BSONObjectID().toHexString();
+      doc._id = new ObjectID().toHexString();
     } else {
       // Has an _id, probably a duplicate but could be a custom _id.
       if (this.exists({ _id: doc._id })) {
@@ -98,7 +97,7 @@ export abstract class JsongoCollection<
     return newDoc;
   }
 
-  insertMany(docs: Array<PartialDoc>): Array<JsongoDoc> {
+  insertMany(docs: Array<InputDoc>): Array<JsongoDoc> {
     // Perform mass validation.
     const usedIds: Record<string, boolean> = {};
     for (const doc of docs) {
@@ -119,7 +118,7 @@ export abstract class JsongoCollection<
     // Generate any missing _id's.
     for (const doc of docs) {
       if (doc._id === undefined) {
-        doc._id = new BSONObjectID().toHexString();
+        doc._id = new ObjectID().toHexString();
       }
     }
 
@@ -130,7 +129,7 @@ export abstract class JsongoCollection<
     return newDocs;
   }
 
-  upsertOne(doc: PartialDoc): JsongoDoc {
+  upsertOne(doc: InputDoc): JsongoDoc {
     if (doc._id !== undefined) {
       // Has an _id, probably an update but could be a custom _id.
       const docIdx = this._findDocumentIndex({ _id: doc._id });
@@ -145,7 +144,7 @@ export abstract class JsongoCollection<
     return this.insertOne(doc);
   }
 
-  upsertMany(docs: Array<PartialDoc>): Array<JsongoDoc> {
+  upsertMany(docs: Array<InputDoc>): Array<JsongoDoc> {
     // Perform mass validation.
     const usedIds: Record<string, boolean> = {};
     for (const doc of docs) {
@@ -162,7 +161,7 @@ export abstract class JsongoCollection<
     const newDocs = docs.filter((doc) => {
       if (doc._id === undefined) {
         // Doesn't have an _id, generate one.
-        doc._id = new BSONObjectID().toHexString();
+        doc._id = new ObjectID().toHexString();
       } else {
         // Has an _id, probably an update but could be a custom _id.
         const docIdx = this._findDocumentIndex({ _id: doc._id });
@@ -295,12 +294,12 @@ export function parseJsongoRelationName(fieldName: string): null | string {
 
 // POJO with an obligatory _id key
 export interface JsongoDoc {
-  _id: ObjectID;
+  _id: string;
   [key: string]: any;
 }
 
 // User-supplied POJO with an optional _id key
-export interface PartialDoc {
-  _id?: ObjectID;
+export interface InputDoc {
+  _id?: string;
   [key: string]: any;
 }

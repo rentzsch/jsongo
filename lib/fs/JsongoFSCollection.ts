@@ -1,5 +1,5 @@
 import { JsongoFSDB } from "./JsongoFSDB";
-import { JsongoCollection, PartialDoc, JsongoDoc } from "../shared";
+import { JsongoCollection, InputDoc, JsongoDoc } from "../shared";
 import path from "path";
 import fs from "fs";
 
@@ -23,25 +23,25 @@ export class JsongoFSCollection extends JsongoCollection<JsongoFSDB> {
     }
   }
 
-  insertOne(doc: PartialDoc): JsongoDoc {
+  insertOne(doc: InputDoc): JsongoDoc {
     const newDoc = super.insertOne(doc);
     this._saveFile();
     return newDoc;
   }
 
-  insertMany(docs: Array<PartialDoc>): Array<JsongoDoc> {
+  insertMany(docs: Array<InputDoc>): Array<JsongoDoc> {
     const newDocs = super.insertMany(docs);
     this._saveFile();
     return newDocs;
   }
 
-  upsertOne(doc: PartialDoc): JsongoDoc {
+  upsertOne(doc: InputDoc): JsongoDoc {
     const newDoc = super.upsertOne(doc);
     this._saveFile();
     return newDoc;
   }
 
-  upsertMany(docs: Array<PartialDoc>): Array<JsongoDoc> {
+  upsertMany(docs: Array<InputDoc>): Array<JsongoDoc> {
     const newDocs = super.upsertMany(docs);
     this._saveFile();
     return newDocs;

@@ -29,6 +29,31 @@ export class JsongoFSCollection extends JsongoCollection<JsongoFSDB> {
     return newDoc;
   }
 
+  insertMany(
+    docs: Array<PartialDoc>,
+    updateOnDuplicateKey = false
+  ): Array<JsongoDoc> {
+    const newDocs = super.insertMany(docs, updateOnDuplicateKey);
+    this._saveFile();
+    return newDocs;
+  }
+
+  deleteOne(criteria: object): { deletedCount: number } {
+    const res = super.deleteOne(criteria);
+    if (res.deletedCount > 0) {
+      this._saveFile();
+    }
+    return res;
+  }
+
+  deleteMany(criteria: object): { deletedCount: number } {
+    const res = super.deleteMany(criteria);
+    if (res.deletedCount > 0) {
+      this._saveFile();
+    }
+    return res;
+  }
+
   _saveFile(): void {
     this._fs().writeFileSync(this._filePath(), this.toJson() + "\n");
   }

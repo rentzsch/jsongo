@@ -155,28 +155,33 @@ export abstract class JsongoCollection<
       return true;
     }) as Array<JsongoDoc>;
 
+    // Batch insert.
     this.docs().push(...newDocs);
 
     return docs as Array<JsongoDoc>;
   }
 
   upsertOne(doc: PartialDoc): JsongoDoc | null {
-    let matchCount = 0;
-    const query = new mingo.Query(doc);
-    for (const docItr of this.docs()) {
-      if (query.test(docItr)) {
-        if (matchCount === 0) {
-          doc._id = docItr._id;
-        }
-        matchCount++;
+    if (doc._id !== undefined) {
+      throw new Error("Cannot upsert a doc with an _id");
+    }
+
+    const docs = this.find(doc);
+
+    if (docs.hasNext()) {
+      // Found at least one doc with the same contents.
+      const match = docs.next();
+
+      if (docs.hasNext()) {
+        // There is more than one match, bail out.
+        return null;
+      } else {
+        // Set existing doc's _id to indicate an update.
+        doc._id = match._id;
       }
     }
 
-    if (matchCount > 1) {
-      return null;
-    } else {
-      return this.insertOne(doc, true);
-    }
+    return this.insertOne(doc, true);
   }
 
   deleteOne(criteria: object): { deletedCount: number } {

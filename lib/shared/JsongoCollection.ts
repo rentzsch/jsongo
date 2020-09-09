@@ -1,5 +1,10 @@
 import { JsongoDB } from "./JsongoDB";
 import { ObjectID } from "./JsongoIDType";
+import {
+  DocumentNotFound,
+  DuplicateDocumentID,
+  DuplicateInputID,
+} from "./JsongoError";
 
 import BSONObjectID from "bson-objectid";
 import mingo from "mingo";
@@ -63,11 +68,7 @@ export abstract class JsongoCollection<
   findOneOrFail(criteria: object): JsongoDoc {
     const doc = this.findOne(criteria);
     if (doc === null) {
-      throw new Error(
-        `Could not find document with this search criteria: ${JSON.stringify(
-          criteria
-        )}`
-      );
+      throw new DocumentNotFound(criteria);
     }
     return doc;
   }
@@ -88,9 +89,7 @@ export abstract class JsongoCollection<
       // Has an _id, probably a duplicate but could be a custom _id.
       if (this.exists({ _id: doc._id })) {
         // Duplicates not allowed, abort.
-        throw new Error(
-          `Document with _id ${doc._id} already exists in ${this._name}`
-        );
+        throw new DuplicateDocumentID(doc._id, this._name);
       }
     }
     // At this point, doc has an _id.
@@ -106,15 +105,13 @@ export abstract class JsongoCollection<
       if (doc._id !== undefined) {
         // _id may not appear twice.
         if (usedIds[doc._id] === true) {
-          throw new Error(`Duplicate key not allowed ${doc._id}`);
+          throw new DuplicateInputID(doc._id);
         }
         usedIds[doc._id] = true;
 
         // _id must be vacant.
         if (this.exists({ _id: doc._id })) {
-          throw new Error(
-            `Document with _id ${doc._id} already exists in ${this._name}`
-          );
+          throw new DuplicateDocumentID(doc._id, this._name);
         }
       }
     }
@@ -155,7 +152,7 @@ export abstract class JsongoCollection<
       if (doc._id !== undefined) {
         // _id may not appear twice.
         if (usedIds[doc._id] === true) {
-          throw new Error(`Duplicate key not allowed ${doc._id}`);
+          throw new DuplicateInputID(doc._id);
         }
         usedIds[doc._id] = true;
       }

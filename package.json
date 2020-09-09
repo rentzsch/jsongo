@@ -14,8 +14,9 @@
     "build:cjs": "tsc -p tsconfig.cjs.json",
     "build:esm": "tsc -p tsconfig.esm.json",
     "build:umd": "rollup -c",
-    "test": "yarn clean && tsc --outDir build && ava",
-    "watch": "(tsc --watch &); ava --watch"
+    "build:test": "tsc --outDir build",
+    "test": "yarn clean && yarn build:test && ava",
+    "watch": "(yarn build:test --watch &); ava --watch"
   },
   "dependencies": {
     "bson-objectid": "^1.3.1",

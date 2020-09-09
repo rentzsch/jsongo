@@ -163,6 +163,16 @@ export abstract class JsongoCollection<
     }
   }
 
+  deleteMany(criteria: object): { deletedCount: number } {
+    const docs = this.docs();
+    const oldCount = docs.length;
+    const query = new Query(criteria);
+
+    this._docs = docs.filter((doc) => !query.test(doc));
+
+    return { deletedCount: oldCount - this._docs.length };
+  }
+
   toJsonObj() {
     const docs = this.docs();
     const sortedDocs = docs.sort(function (a: any, b: any) {

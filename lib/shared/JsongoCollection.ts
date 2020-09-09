@@ -64,7 +64,7 @@ export abstract class JsongoCollection<
     const doc = this.findOne(criteria);
     if (doc === null) {
       throw new Error(
-        `Could not find document with the following criteria: ${JSON.stringify(
+        `Could not find document with this search criteria: ${JSON.stringify(
           criteria
         )}`
       );
@@ -76,20 +76,27 @@ export abstract class JsongoCollection<
     return this.find(criteria).all();
   }
 
-  _prepareForInsert(doc: PartialDoc, updateOnDuplicateKey = false): JsongoDoc {
+  exists(criteria: object): boolean {
+    return this.find(criteria).hasNext();
+  }
+
+  insertOne(doc: PartialDoc, replaceOnDuplicateKey = false): JsongoDoc {
+    const docs = this.docs();
     if (doc._id === undefined) {
       // Doesn't have an _id, generate one.
       doc._id = new BSONObjectID().toHexString();
     } else {
-      // Has an _id, probably an update but may be an insert with a custom _id.
-      const docIdx = this._findDocumentIndex(new Query({ _id: doc._id }));
+      // Has an _id, probably need to replace but may be an insert with a custom _id.
+      const docIdx = this._findDocumentIndex({ _id: doc._id });
 
       if (docIdx === null) {
         // Didn't find an existing document with the same _id.
       } else {
-        if (updateOnDuplicateKey) {
-          // It's an update, delete the original.
-          this.docs().splice(docIdx, 1);
+        if (replaceOnDuplicateKey) {
+          // Found by the key, replace the original.
+          const newDoc = doc as JsongoDoc;
+          docs[docIdx] = newDoc;
+          return newDoc;
         } else {
           // Update not allowed, abort.
           throw new Error(
@@ -99,38 +106,58 @@ export abstract class JsongoCollection<
       }
     }
     // At this point, doc has an _id.
-    return doc as JsongoDoc;
-  }
-
-  insertOne(doc: PartialDoc, updateOnDuplicateKey = false): JsongoDoc {
-    const newDoc = this._prepareForInsert(doc, updateOnDuplicateKey);
-    this.docs().push(newDoc);
+    const newDoc = doc as JsongoDoc;
+    docs.push(newDoc);
     return newDoc;
   }
 
   insertMany(
     docs: Array<PartialDoc>,
-    updateOnDuplicateKey = false
+    replaceOnDuplicateKey = false
   ): Array<JsongoDoc> {
-    // Duplicate key detection.
-    if (!updateOnDuplicateKey) {
-      const usedIds: Record<string, boolean> = {};
+    const usedIds: Record<string, boolean> = {};
 
-      docs.forEach((doc) => {
+    if (!replaceOnDuplicateKey) {
+      // Perform mass validation before any write takes place.
+      for (const doc of docs) {
         if (doc._id !== undefined) {
+          // ID may not appear twice.
           if (usedIds[doc._id] === true) {
             throw new Error(`Duplicate key not allowed ${doc._id}`);
           }
           usedIds[doc._id] = true;
+
+          // ID must be vacant.
+          const idTaken = this.exists({ _id: doc._id });
+          if (idTaken) {
+            throw new Error(
+              `Document with _id ${doc._id} already exists in ${this._name}`
+            );
+          }
         }
-      });
+      }
     }
 
-    const newDocs = docs.map((doc) =>
-      this._prepareForInsert(doc, updateOnDuplicateKey)
-    );
+    const newDocs = docs.filter((doc) => {
+      if (doc._id === undefined) {
+        // Doesn't have an _id, generate one.
+        doc._id = new BSONObjectID().toHexString();
+      } else {
+        // Has an _id, probably need to replace but may be an insert with a custom _id.
+        const docIdx = this._findDocumentIndex({ _id: doc._id });
+        if (docIdx !== null) {
+          // Found by the key, replace the original.
+          this.docs()[docIdx] = doc as JsongoDoc;
+          return false;
+        }
+      }
+
+      return true;
+    }) as Array<JsongoDoc>;
+
     this.docs().push(...newDocs);
-    return newDocs;
+
+    return docs as Array<JsongoDoc>;
   }
 
   upsertOne(doc: PartialDoc): JsongoDoc | null {
@@ -153,8 +180,7 @@ export abstract class JsongoCollection<
   }
 
   deleteOne(criteria: object): { deletedCount: number } {
-    const query = new Query(criteria);
-    const docIdx = this._findDocumentIndex(query);
+    const docIdx = this._findDocumentIndex(criteria);
     if (docIdx === null) {
       return { deletedCount: 0 };
     } else {
@@ -239,7 +265,8 @@ export abstract class JsongoCollection<
     }
   }
 
-  protected _findDocumentIndex(query: Query) {
+  protected _findDocumentIndex(criteria: object) {
+    const query = new Query(criteria);
     const docs = this.docs();
     for (let docIdx = 0; docIdx < docs.length; docIdx++) {
       if (query.test(docs[docIdx])) {

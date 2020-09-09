@@ -10,10 +10,10 @@ test("memdb.collections()", (t) => {
   t.deepEqual(db.collections(), []);
 
   const family = db.addNewCollection("family");
-  const people = db.addNewCollection("people");
+  const person = db.addNewCollection("person");
   const pet = db.addNewCollection("pet");
 
-  t.deepEqual(db.collections(), [family, people, pet]);
+  t.deepEqual(db.collections(), [family, person, pet]);
 });
 
 test("memdb.collectionNames()", (t) => {
@@ -21,29 +21,29 @@ test("memdb.collectionNames()", (t) => {
   t.deepEqual(db.collectionNames(), []);
 
   db.addNewCollection("family");
-  db.addNewCollection("people");
+  db.addNewCollection("person");
   db.addNewCollection("pet");
 
-  t.deepEqual(db.collectionNames(), ["family", "people", "pet"]);
+  t.deepEqual(db.collectionNames(), ["family", "person", "pet"]);
 });
 
 test("memdb.collectionWithName()", (t) => {
   const db = new JsongoMemDB();
 
-  const people = db.collectionWithName("people"); // new
-  t.deepEqual(db.collections(), [people]);
+  const person = db.collectionWithName("person"); // new
+  t.deepEqual(db.collections(), [person]);
 
-  t.deepEqual(db.collectionWithName("people"), people); // same
-  t.deepEqual(db.collections(), [people]); // didn't change
+  t.deepEqual(db.collectionWithName("person"), person); // same
+  t.deepEqual(db.collections(), [person]); // didn't change
 });
 
 test("memdb.existingCollectionWithName()", (t) => {
   const db = new JsongoMemDB();
 
-  t.is(db.existingCollectionWithName("people"), null);
+  t.is(db.existingCollectionWithName("person"), null);
 
-  const people = db.addNewCollection("people");
-  t.is(db.existingCollectionWithName("people"), people);
+  const person = db.addNewCollection("person");
+  t.is(db.existingCollectionWithName("person"), person);
 });
 
 //
@@ -52,11 +52,11 @@ test("memdb.existingCollectionWithName()", (t) => {
 
 test("memdb.addNewCollection()", (t) => {
   const db = new JsongoMemDB();
-  const people = db.addNewCollection("people");
-  t.deepEqual(db.collections(), [people]);
+  const person = db.addNewCollection("person");
+  t.deepEqual(db.collections(), [person]);
   t.throws(
     () => {
-      db.addNewCollection("people");
+      db.addNewCollection("person");
     },
     { name: "JsongoDuplicateCollectionName" }
   );

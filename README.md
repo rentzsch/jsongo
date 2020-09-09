@@ -76,7 +76,7 @@ Keys are sorted with [Array.prototype.sort()](https://developer.mozilla.org/en-U
 
 When a document has a key that ends in `_id`, it's interpreted to mean a foreign key.
 
-Consider `people.json` collection:
+Consider `person.json` collection:
 
 ```json
 {
@@ -113,7 +113,7 @@ In Node, you can use either driver. For example:
 ```js
 import { fsDB } from "jsongo";
 const db = fsDB("./path/to/cartoon");
-const simpsonFamilyMembers = db.people.findAll({ family_id: "Simpson" });
+const simpsonFamilyMembers = db.person.findAll({ family_id: "Simpson" });
 console.log(simpsonFamilyMembers);
 ```
 
@@ -173,7 +173,7 @@ Lists names of the database collections.
 
 Makes it easy to replace an automatically generated `_id` with a semantic one.
 
-    jsongo rewrite-id --dataDir data --collection people --oldID 5e58083b2459f248bcdc2032 --newID fflintstone
+    jsongo rewrite-id --dataDir data --collection person --oldID 5e58083b2459f248bcdc2032 --newID fflintstone
 
 ### `jsongo objectid --times [number]`
 
@@ -191,5 +191,5 @@ When you need to generate a new ObjectID.
 
 Runs JavaScript code with access to a local `db` var.
 
-    $ jsongo eval --code "db.people.findAll({})"
+    $ jsongo eval --code "db.person.findAll({})"
     [ { _id: '5f531ca259e05c432b15aa89', name: 'Jeff' } ]

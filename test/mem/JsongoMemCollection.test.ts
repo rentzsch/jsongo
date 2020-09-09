@@ -1,4 +1,4 @@
-import peopleFixture from "../fixtures/cartoon/people.json";
+import personFixture from "../fixtures/cartoon/person.json";
 import { JsongoMemDB, JsongoMemCollection } from "../../lib";
 import test from "ava";
 import ObjectID from "bson-objectid";
@@ -9,30 +9,30 @@ import ObjectID from "bson-objectid";
 
 test("memdb.collection.count()", (t) => {
   const db = new JsongoMemDB();
-  const people = new JsongoMemCollection("people", db);
-  t.is(people.count(), 0);
+  const person = new JsongoMemCollection("person", db);
+  t.is(person.count(), 0);
 
-  people.insertMany(peopleFixture);
-  t.is(people.count(), 15);
+  person.insertMany(personFixture);
+  t.is(person.count(), 15);
 });
 
 test("memdb.collection.docs()", (t) => {
   const db = new JsongoMemDB();
-  const people = new JsongoMemCollection("people", db);
-  t.deepEqual(people.docs(), []);
+  const person = new JsongoMemCollection("person", db);
+  t.deepEqual(person.docs(), []);
 
-  people.insertMany(peopleFixture);
-  const docs = people.docs();
+  person.insertMany(personFixture);
+  const docs = person.docs();
   t.is(docs.length, 15);
-  docs.forEach((doc, idx) => t.like(doc, peopleFixture[idx]));
+  docs.forEach((doc, idx) => t.like(doc, personFixture[idx]));
 });
 
 test.todo("memdb.collection.isDirty()");
 
 test("memdb.collection.name()", (t) => {
   const db = new JsongoMemDB();
-  const people = new JsongoMemCollection("people", db);
-  t.is(people.name(), "people");
+  const person = new JsongoMemCollection("person", db);
+  t.is(person.name(), "person");
 });
 
 //
@@ -41,77 +41,77 @@ test("memdb.collection.name()", (t) => {
 
 test("memdb.collection.find()", (t) => {
   const db = new JsongoMemDB();
-  const people = new JsongoMemCollection("people", db);
-  people.insertMany(peopleFixture);
+  const person = new JsongoMemCollection("person", db);
+  person.insertMany(personFixture);
 
-  t.is(people.find({}).count(), 15); // all
-  t.is(people.find({ family_id: "Simpson" }).count(), 5); // subset
-  t.is(people.find({ family_id: "Monroe" }).count(), 0); // none
+  t.is(person.find({}).count(), 15); // all
+  t.is(person.find({ family_id: "Simpson" }).count(), 5); // subset
+  t.is(person.find({ family_id: "Monroe" }).count(), 0); // none
 });
 
 test("memdb.collection.findOne()", (t) => {
   const db = new JsongoMemDB();
-  const people = new JsongoMemCollection("people", db);
-  people.insertMany(peopleFixture);
+  const person = new JsongoMemCollection("person", db);
+  person.insertMany(personFixture);
 
-  t.is(people.findOne({ _id: "Judy" })!.family_id, "Jetson"); // unique
-  t.is(people.findOne({ family_id: "Jetson" })!._id, "Elroy"); // first
-  t.is(people.findOne({ _id: "Welma" }), null); // non-existent
+  t.is(person.findOne({ _id: "Judy" })!.family_id, "Jetson"); // unique
+  t.is(person.findOne({ family_id: "Jetson" })!._id, "Elroy"); // first
+  t.is(person.findOne({ _id: "Welma" }), null); // non-existent
 });
 
 test("memdb.collection.findOneOrFail()", (t) => {
   const db = new JsongoMemDB();
-  const people = new JsongoMemCollection("people", db);
-  people.insertMany(peopleFixture);
+  const person = new JsongoMemCollection("person", db);
+  person.insertMany(personFixture);
 
-  t.is(people.findOneOrFail({ _id: "Judy" })!.family_id, "Jetson");
-  t.throws(() => people.findOneOrFail({ _id: "Welma" }));
+  t.is(person.findOneOrFail({ _id: "Judy" })!.family_id, "Jetson");
+  t.throws(() => person.findOneOrFail({ _id: "Welma" }));
 });
 
 test("memdb.collection.findAll()", (t) => {
   const db = new JsongoMemDB();
-  const people = new JsongoMemCollection("people", db);
-  people.insertMany(peopleFixture);
+  const person = new JsongoMemCollection("person", db);
+  person.insertMany(personFixture);
 
-  const items = people.findAll({});
+  const items = person.findAll({});
   t.truthy(Array.isArray(items));
   t.is(items.length, 15);
 });
 
 test("memdb.collection._prepareForInsert()", (t) => {
   const db = new JsongoMemDB();
-  const people = new JsongoMemCollection("people", db);
-  const bart = people.insertOne({ name: "Bart" });
+  const person = new JsongoMemCollection("person", db);
+  const bart = person.insertOne({ name: "Bart" });
 
   // appends _id
-  const autoGenId = people._prepareForInsert({ name: "Bart" })._id;
+  const autoGenId = person._prepareForInsert({ name: "Bart" })._id;
   t.true(ObjectID.isValid(autoGenId));
 
   // doesn't modify custom _id
-  const lisa = people._prepareForInsert({ _id: "Lisa" });
+  const lisa = person._prepareForInsert({ _id: "Lisa" });
   t.is(lisa._id, "Lisa");
 
   // throws on duplicate
-  t.throws(() => people._prepareForInsert({ _id: bart._id }));
+  t.throws(() => person._prepareForInsert({ _id: bart._id }));
 
   // when passed a flag, removes the old record
-  const bart2nd = people._prepareForInsert(
+  const bart2nd = person._prepareForInsert(
     { _id: bart._id, name: "Bart II" },
     true
   );
-  t.is(people.findOne({ name: "Bart" }), null);
+  t.is(person.findOne({ name: "Bart" }), null);
   t.is(bart2nd.name, "Bart II");
 });
 
 test("memdb.collection.insertOne()", (t) => {
   const db = new JsongoMemDB();
-  const people = new JsongoMemCollection("people", db);
+  const person = new JsongoMemCollection("person", db);
   const homer = { name: "Homer" };
 
-  t.is(people.count(), 0);
-  people.insertOne(homer);
+  t.is(person.count(), 0);
+  person.insertOne(homer);
 
-  const docs = people.findAll({});
+  const docs = person.findAll({});
   t.is(docs.length, 1);
   t.like(docs[0], homer);
   t.true(ObjectID.isValid(docs[0]._id));
@@ -119,64 +119,64 @@ test("memdb.collection.insertOne()", (t) => {
 
 test("memdb.collection.insertMany()", (t) => {
   const db = new JsongoMemDB();
-  const people = new JsongoMemCollection("people", db);
+  const person = new JsongoMemCollection("person", db);
 
   const homer = { name: "Homer" };
   const bart = { name: "Bart" };
   const lisa = { name: "Lisa" };
-  people.insertMany([homer, bart, lisa]);
+  person.insertMany([homer, bart, lisa]);
 
-  const docs = people.findAll({});
+  const docs = person.findAll({});
   t.is(docs.length, 3);
   docs.forEach((doc, idx) => t.like(doc, docs[idx]));
 
   // existing keys cause insert to fail fast
-  t.throws(() => people.insertMany([{ name: "Marge" }, bart]));
-  t.deepEqual(people.findAll({}), docs); // no changes
+  t.throws(() => person.insertMany([{ name: "Marge" }, bart]));
+  t.deepEqual(person.findAll({}), docs); // no changes
 });
 
 test("memdb.collection.upsertOne()", (t) => {
   const db = new JsongoMemDB();
-  const people = new JsongoMemCollection("people", db);
+  const person = new JsongoMemCollection("person", db);
   const judy = { name: "Judy" };
 
-  t.is(people.count(), 0);
-  const res = people.upsertOne(judy); // same as insert
+  t.is(person.count(), 0);
+  const res = person.upsertOne(judy); // same as insert
   t.true(res !== null);
-  t.is(people.count(), 1);
-  t.like(people.findOne({}), judy);
+  t.is(person.count(), 1);
+  t.like(person.findOne({}), judy);
 
   const judy2nd = { _id: res!._id, name: "Judy II" };
-  const matched = people.upsertOne(judy2nd);
+  const matched = person.upsertOne(judy2nd);
   t.deepEqual(matched, judy2nd);
-  t.is(people.count(), 1); // no new records
-  t.deepEqual(people.findOne({}), judy2nd);
+  t.is(person.count(), 1); // no new records
+  t.deepEqual(person.findOne({}), judy2nd);
 });
 
 test("memdb.collection.deleteOne()", (t) => {
   const db = new JsongoMemDB();
-  const people = new JsongoMemCollection("people", db);
-  people.insertMany(peopleFixture);
+  const person = new JsongoMemCollection("person", db);
+  person.insertMany(personFixture);
 
-  t.is(people.count(), 15);
-  const res = people.deleteOne({ _id: "Bart" });
+  t.is(person.count(), 15);
+  const res = person.deleteOne({ _id: "Bart" });
   t.is(res.deletedCount, 1);
-  t.is(people.count(), 14);
-  t.is(people.findOne({ _id: "Bart" }), null);
+  t.is(person.count(), 14);
+  t.is(person.findOne({ _id: "Bart" }), null);
 });
 
 test("memdb.collection.deleteMany()", (t) => {
   const db = new JsongoMemDB();
-  const people = new JsongoMemCollection("people", db);
-  people.insertMany(peopleFixture);
+  const person = new JsongoMemCollection("person", db);
+  person.insertMany(personFixture);
 
-  t.is(people.count(), 15); // before
-  const res = people.deleteMany({ family_id: "Simpson" });
-  t.is(people.count(), 10); // after
+  t.is(person.count(), 15); // before
+  const res = person.deleteMany({ family_id: "Simpson" });
+  t.is(person.count(), 10); // after
   t.is(res.deletedCount, 5); // diff
 
-  const resBogus = people.deleteMany({ family_id: "bogus" });
-  t.is(people.count(), 10); // not affected
+  const resBogus = person.deleteMany({ family_id: "bogus" });
+  t.is(person.count(), 10); // not affected
   t.is(resBogus.deletedCount, 0);
 });
 
@@ -190,7 +190,7 @@ test.todo("memdb.collection._findDocumentIndex()");
 
 test("memdb.collection._readAndParseJson()", (t) => {
   const db = new JsongoMemDB();
-  const people = new JsongoMemCollection("people", db);
-  people._readAndParseJson();
-  t.deepEqual(people.docs(), []); // no-op
+  const person = new JsongoMemCollection("person", db);
+  person._readAndParseJson();
+  t.deepEqual(person.docs(), []); // no-op
 });

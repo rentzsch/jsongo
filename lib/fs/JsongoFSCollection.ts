@@ -23,17 +23,26 @@ export class JsongoFSCollection extends JsongoCollection<JsongoFSDB> {
     }
   }
 
-  insertOne(doc: PartialDoc, updateOnDuplicateKey = false): JsongoDoc {
-    const newDoc = super.insertOne(doc, updateOnDuplicateKey);
+  insertOne(doc: PartialDoc): JsongoDoc {
+    const newDoc = super.insertOne(doc);
     this._saveFile();
     return newDoc;
   }
 
-  insertMany(
-    docs: Array<PartialDoc>,
-    updateOnDuplicateKey = false
-  ): Array<JsongoDoc> {
-    const newDocs = super.insertMany(docs, updateOnDuplicateKey);
+  insertMany(docs: Array<PartialDoc>): Array<JsongoDoc> {
+    const newDocs = super.insertMany(docs);
+    this._saveFile();
+    return newDocs;
+  }
+
+  upsertOne(doc: PartialDoc): JsongoDoc {
+    const newDoc = super.upsertOne(doc);
+    this._saveFile();
+    return newDoc;
+  }
+
+  upsertMany(docs: Array<PartialDoc>): Array<JsongoDoc> {
+    const newDocs = super.upsertMany(docs);
     this._saveFile();
     return newDocs;
   }

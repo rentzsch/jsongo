@@ -203,7 +203,7 @@ export abstract class JsongoCollection<
 
   toJsonObj() {
     const docs = this.docs();
-    const sortedDocs = docs.sort(function (a: any, b: any) {
+    const sortedDocs = docs.sort((a: any, b: any) => {
       const nameA = valueOrJson(a._id).toUpperCase(); // ignore upper and lowercase
       const nameB = valueOrJson(b._id).toUpperCase();
       if (nameA < nameB) {
@@ -278,7 +278,7 @@ export abstract class JsongoCollection<
     return null;
   }
 
-  abstract _readAndParseJson(): void;
+  protected abstract _readAndParseJson(): void;
 }
 
 export function parseJsongoRelationName(fieldName: string): null | string {

@@ -8,7 +8,7 @@ import fs from "fs";
 //
 
 export class JsongoFSCollection extends JsongoCollection<JsongoFSDB> {
-  _readAndParseJson(): void {
+  protected _readAndParseJson(): void {
     try {
       const jsonBuf = this._fs().readFileSync(this._filePath(), "utf-8");
       this._docs = JSON.parse(jsonBuf);
@@ -67,7 +67,7 @@ export class JsongoFSCollection extends JsongoCollection<JsongoFSDB> {
     this._fs().writeFileSync(this._filePath(), this.toJson() + "\n");
   }
 
-  _filePath(): string {
+  private _filePath(): string {
     // Note: path.format({dir:"/", name:"uno", ext:".json"}) returns "//uno.json", which is weird but seemingly harmless.
     return path.format({
       dir: this._fsdb().dirPath(),
@@ -76,11 +76,11 @@ export class JsongoFSCollection extends JsongoCollection<JsongoFSDB> {
     });
   }
 
-  _fsdb(): JsongoFSDB {
+  private _fsdb(): JsongoFSDB {
     return this._db as JsongoFSDB;
   }
 
-  _fs(): typeof fs {
+  private _fs(): typeof fs {
     return this._fsdb().fs();
   }
 

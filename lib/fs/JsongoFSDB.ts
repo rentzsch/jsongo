@@ -37,13 +37,13 @@ export class JsongoFSDB extends JsongoDB<JsongoFSCollection> {
     }
   }
 
-  _jsonFileNames(): Array<string> {
+  private _jsonFileNames(): Array<string> {
     return this._fs
       .readdirSync(this._dirPath)
       .filter((fileName) => fileName.endsWith(".json"));
   }
 
-  _collectionsFromDir(): Map<string, JsongoFSCollection> {
+  private _collectionsFromDir(): Map<string, JsongoFSCollection> {
     const collections = new Map();
     const jsonFileNames = this._jsonFileNames();
 

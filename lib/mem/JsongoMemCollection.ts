@@ -6,7 +6,7 @@ import { JsongoCollection } from "../shared";
 //
 
 export class JsongoMemCollection extends JsongoCollection<JsongoMemDB> {
-  _readAndParseJson(): void {
+  protected _readAndParseJson(): void {
     this._docs = [];
   }
 }

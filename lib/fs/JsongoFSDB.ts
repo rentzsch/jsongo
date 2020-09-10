@@ -33,7 +33,7 @@ export class JsongoFSDB extends JsongoDB<JsongoFSCollection> {
   save(): void {
     for (const collection of this._collections.values()) {
       // TODO check if _isDirty
-      (collection as JsongoFSCollection)._saveFile();
+      collection.save();
     }
   }
 

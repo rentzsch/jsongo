@@ -81,7 +81,7 @@ function rewriteIDCmd(argv: Arguments) {
       }
     }
     if (dirty) {
-      collection._saveFile();
+      collection.save();
     }
   }
 }

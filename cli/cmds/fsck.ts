@@ -38,7 +38,7 @@ function fsckCmd(argv: Arguments) {
   const db = fsDB(dataDir);
 
   for (const collection of db.collections()) {
-    const filePath = collection._filePath();
+    const filePath = collection["_filePath"]();
     console.log(`Checking ${filePath}`);
     const jsonBuf = fs.readFileSync(filePath, "utf-8");
     const dups = findDupKeys(jsonBuf);

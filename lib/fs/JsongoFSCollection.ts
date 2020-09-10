@@ -63,7 +63,11 @@ export class JsongoFSCollection extends JsongoCollection<JsongoFSDB> {
     return res;
   }
 
-  _saveFile(): void {
+  save(): void {
+    this._saveFile();
+  }
+
+  private _saveFile(): void {
     this._fs().writeFileSync(this._filePath(), this.toJson() + "\n");
   }
 
@@ -77,7 +81,7 @@ export class JsongoFSCollection extends JsongoCollection<JsongoFSDB> {
   }
 
   private _fsdb(): JsongoFSDB {
-    return this._db as JsongoFSDB;
+    return this._db;
   }
 
   private _fs(): typeof fs {

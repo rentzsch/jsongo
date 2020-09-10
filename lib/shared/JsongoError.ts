@@ -2,7 +2,15 @@ export class DuplicateCollectionName extends Error {
   name = "JsongoDuplicateCollectionName";
 
   constructor(collectionName: string) {
-    super(`Collection already exists: fsdb.${collectionName}`);
+    super(`Collection already exists: ${collectionName}`);
+  }
+}
+
+export class CollectionNotFound extends Error {
+  name = "JsongoCollectionNotFound";
+
+  constructor(collectionName: string) {
+    super(`Collection doesn't exist: ${collectionName}`);
   }
 }
 

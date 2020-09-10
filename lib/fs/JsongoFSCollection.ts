@@ -27,8 +27,16 @@ export class JsongoFSCollection extends JsongoCollection<JsongoFSDB> {
     this._saveFile();
   }
 
+  remove(): void {
+    this._removeFile();
+  }
+
   private _saveFile(): void {
     this._fs().writeFileSync(this._filePath(), this.toJson() + "\n");
+  }
+
+  private _removeFile(): void {
+    this._fs().unlinkSync(this._filePath());
   }
 
   private _filePath(): string {

@@ -32,4 +32,6 @@ export abstract class JsongoDB<
   }
 
   abstract addNewCollection(collectionName: string): AJsongoCollection;
+
+  abstract dropCollection(collectionName: string): AJsongoCollection;
 }

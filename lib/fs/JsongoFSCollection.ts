@@ -23,46 +23,6 @@ export class JsongoFSCollection extends JsongoCollection<JsongoFSDB> {
     }
   }
 
-  insertOne(doc: InputDoc): JsongoDoc {
-    const newDoc = super.insertOne(doc);
-    this._saveFile();
-    return newDoc;
-  }
-
-  insertMany(docs: Array<InputDoc>): Array<JsongoDoc> {
-    const newDocs = super.insertMany(docs);
-    this._saveFile();
-    return newDocs;
-  }
-
-  upsertOne(doc: InputDoc): JsongoDoc {
-    const newDoc = super.upsertOne(doc);
-    this._saveFile();
-    return newDoc;
-  }
-
-  upsertMany(docs: Array<InputDoc>): Array<JsongoDoc> {
-    const newDocs = super.upsertMany(docs);
-    this._saveFile();
-    return newDocs;
-  }
-
-  deleteOne(criteria: object): { deletedCount: number } {
-    const res = super.deleteOne(criteria);
-    if (res.deletedCount > 0) {
-      this._saveFile();
-    }
-    return res;
-  }
-
-  deleteMany(criteria: object): { deletedCount: number } {
-    const res = super.deleteMany(criteria);
-    if (res.deletedCount > 0) {
-      this._saveFile();
-    }
-    return res;
-  }
-
   save(): void {
     this._saveFile();
   }

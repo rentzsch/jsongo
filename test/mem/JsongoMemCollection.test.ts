@@ -1,4 +1,4 @@
-import personFixture from "../fixtures/cartoon/person.json";
+import { personFixture } from "../fixtures";
 import { JsongoMemDB, JsongoMemCollection } from "../../lib";
 import test from "ava";
 import ObjectID from "bson-objectid";

@@ -57,5 +57,13 @@
   },
   "bugs": {
     "url": "https://github.com/rentzsch/jsongo/issues"
+  },
+  "ava": {
+    "files": [
+      "build/test/**/*.test.js"
+    ],
+    "ignoredByWatcher": [
+      "lib/"
+    ]
   }
 }

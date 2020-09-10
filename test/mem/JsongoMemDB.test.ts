@@ -30,10 +30,12 @@ test("memdb.collectionNames()", (t) => {
 test("memdb.collectionWithName()", (t) => {
   const db = new JsongoMemDB();
 
-  const person = db.collectionWithName("person"); // new
+  // creates a new collection
+  const person = db.collectionWithName("person");
   t.deepEqual(db.collections(), [person]);
 
-  t.deepEqual(db.collectionWithName("person"), person); // same
+  // returns the existing collection
+  t.deepEqual(db.collectionWithName("person"), person);
   t.deepEqual(db.collections(), [person]); // didn't change
 });
 
@@ -50,6 +52,11 @@ test("memdb.existingCollectionWithName()", (t) => {
 // JsongoMemDB
 //
 
+test("memdb._collections", (t) => {
+  const db = new JsongoMemDB();
+  t.deepEqual(db["_collections"], new Map()); // initialized
+});
+
 test("memdb.addNewCollection()", (t) => {
   const db = new JsongoMemDB();
   const person = db.addNewCollection("person");
@@ -59,5 +66,21 @@ test("memdb.addNewCollection()", (t) => {
       db.addNewCollection("person");
     },
     { name: "JsongoDuplicateCollectionName" }
+  );
+});
+
+test("fsdb.dropCollection()", (t) => {
+  const db = new JsongoMemDB();
+  db.addNewCollection("person");
+  const pet = db.addNewCollection("pet");
+
+  db.dropCollection("person");
+  t.deepEqual(db.collections(), [pet]);
+
+  t.throws(
+    () => {
+      db.dropCollection("person");
+    },
+    { name: "JsongoCollectionNotFound" }
   );
 });

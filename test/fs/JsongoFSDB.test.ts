@@ -1,6 +1,7 @@
 import { memFSDB } from "./utils";
-import { JsongoFSDB, JsongoFSCollection } from "../../lib";
 import { petFixture } from "../fixtures";
+import * as dbTest from "../shared/JsongoDB.test";
+import { JsongoFSDB, JsongoFSCollection } from "../../lib";
 import test from "ava";
 import { Volume } from "memfs";
 import fs from "fs";
@@ -9,46 +10,20 @@ import fs from "fs";
 // JsongoDB
 //
 
-test("fsdb.collections()", (t) => {
-  const { db } = memFSDB();
-  t.deepEqual(db.collections(), []);
-
-  const family = db.addNewCollection("family");
-  const person = db.addNewCollection("person");
-
-  t.deepEqual(db.collections(), [family, person]);
+test("memdb.collections()", (t) => {
+  dbTest.collections(t, memFSDB().db);
 });
 
 test("fsdb.collectionNames()", (t) => {
-  const { db } = memFSDB();
-  t.deepEqual(db.collectionNames(), []);
-
-  db.addNewCollection("family");
-  db.addNewCollection("person");
-  db.addNewCollection("pet");
-
-  t.deepEqual(db.collectionNames(), ["family", "person", "pet"]);
+  dbTest.collectionNames(t, memFSDB().db);
 });
 
 test("fsdb.collectionWithName()", (t) => {
-  const { db } = memFSDB();
-
-  // creates a new collection
-  const person = db.collectionWithName("person");
-  t.deepEqual(db.collections(), [person]);
-
-  // returns the existing collection
-  t.deepEqual(db.collectionWithName("person"), person);
-  t.deepEqual(db.collections(), [person]); // didn't change
+  dbTest.collectionWithName(t, memFSDB().db);
 });
 
 test("fsdb.existingCollectionWithName()", (t) => {
-  const { db } = memFSDB();
-
-  t.is(db.existingCollectionWithName("person"), null);
-
-  const person = db.addNewCollection("person");
-  t.is(db.existingCollectionWithName("person"), person);
+  dbTest.existingCollectionWithName(t, memFSDB().db);
 });
 
 //
@@ -76,31 +51,11 @@ test("fsdb.fs()", (t) => {
 });
 
 test("fsdb.addNewCollection()", (t) => {
-  const { db } = memFSDB();
-  const person = db.addNewCollection("person");
-  t.deepEqual(db.collections(), [person]);
-  t.throws(
-    () => {
-      db.addNewCollection("person");
-    },
-    { name: "JsongoDuplicateCollectionName" }
-  );
+  dbTest.addNewCollection(t, memFSDB().db);
 });
 
 test("fsdb.dropCollection()", (t) => {
-  const { db } = memFSDB();
-  db.addNewCollection("person");
-  const pet = db.addNewCollection("pet");
-
-  db.dropCollection("person");
-  t.deepEqual(db.collections(), [pet]);
-
-  t.throws(
-    () => {
-      db.dropCollection("person");
-    },
-    { name: "JsongoCollectionNotFound" }
-  );
+  dbTest.dropCollection(t, memFSDB().db);
 });
 
 test("fsdb.save()", (t) => {

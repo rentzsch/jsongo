@@ -1,3 +1,4 @@
+import * as dbTest from "../shared/JsongoDB.test";
 import { JsongoMemDB } from "../../lib";
 import test from "ava";
 
@@ -6,46 +7,19 @@ import test from "ava";
 //
 
 test("memdb.collections()", (t) => {
-  const db = new JsongoMemDB();
-  t.deepEqual(db.collections(), []);
-
-  const family = db.addNewCollection("family");
-  const person = db.addNewCollection("person");
-  const pet = db.addNewCollection("pet");
-
-  t.deepEqual(db.collections(), [family, person, pet]);
+  dbTest.collections(t, new JsongoMemDB());
 });
 
 test("memdb.collectionNames()", (t) => {
-  const db = new JsongoMemDB();
-  t.deepEqual(db.collectionNames(), []);
-
-  db.addNewCollection("family");
-  db.addNewCollection("person");
-  db.addNewCollection("pet");
-
-  t.deepEqual(db.collectionNames(), ["family", "person", "pet"]);
+  dbTest.collectionNames(t, new JsongoMemDB());
 });
 
 test("memdb.collectionWithName()", (t) => {
-  const db = new JsongoMemDB();
-
-  // creates a new collection
-  const person = db.collectionWithName("person");
-  t.deepEqual(db.collections(), [person]);
-
-  // returns the existing collection
-  t.deepEqual(db.collectionWithName("person"), person);
-  t.deepEqual(db.collections(), [person]); // didn't change
+  dbTest.collectionWithName(t, new JsongoMemDB());
 });
 
 test("memdb.existingCollectionWithName()", (t) => {
-  const db = new JsongoMemDB();
-
-  t.is(db.existingCollectionWithName("person"), null);
-
-  const person = db.addNewCollection("person");
-  t.is(db.existingCollectionWithName("person"), person);
+  dbTest.existingCollectionWithName(t, new JsongoMemDB());
 });
 
 //
@@ -58,29 +32,9 @@ test("memdb._collections", (t) => {
 });
 
 test("memdb.addNewCollection()", (t) => {
-  const db = new JsongoMemDB();
-  const person = db.addNewCollection("person");
-  t.deepEqual(db.collections(), [person]);
-  t.throws(
-    () => {
-      db.addNewCollection("person");
-    },
-    { name: "JsongoDuplicateCollectionName" }
-  );
+  dbTest.addNewCollection(t, new JsongoMemDB());
 });
 
 test("fsdb.dropCollection()", (t) => {
-  const db = new JsongoMemDB();
-  db.addNewCollection("person");
-  const pet = db.addNewCollection("pet");
-
-  db.dropCollection("person");
-  t.deepEqual(db.collections(), [pet]);
-
-  t.throws(
-    () => {
-      db.dropCollection("person");
-    },
-    { name: "JsongoCollectionNotFound" }
-  );
+  dbTest.dropCollection(t, new JsongoMemDB());
 });

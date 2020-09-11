@@ -10,7 +10,7 @@ import fs from "fs";
 // JsongoDB
 //
 
-test("memdb.collections()", (t) => {
+test("fsdb.collections()", (t) => {
   dbTest.collections(t, memFSDB().db);
 });
 

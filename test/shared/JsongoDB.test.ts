@@ -1,7 +1,7 @@
 import { JsongoDB } from "../../lib/shared";
 import test, { ExecutionContext } from "ava";
 
-test("test", (t) => t.pass()); // no-op
+test("no-op", (t) => t.pass());
 
 export function collections(t: ExecutionContext, db: JsongoDB) {
   t.deepEqual(db.collections(), []);

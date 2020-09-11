@@ -44,7 +44,7 @@ test("memdb.collection.insertOne()", (t) => {
   collectionTest.insertOne(t, new JsongoMemDB(), JsongoMemCollection);
 });
 
-test.only("memdb.collection.insertMany()", (t) => {
+test("memdb.collection.insertMany()", (t) => {
   collectionTest.insertMany(t, new JsongoMemDB(), JsongoMemCollection);
 });
 
@@ -82,7 +82,7 @@ test("memdb.collection._readAndParseJson()", (t) => {
   const db = new JsongoMemDB();
   const person = new JsongoMemCollection("person", db);
 
-  t.deepEqual(person["_docs"], null);
+  t.deepEqual(person["_docs"], null); // uninitialized
   person["_readAndParseJson"]();
-  t.deepEqual(person["_docs"], []); // initializes
+  t.deepEqual(person["_docs"], []); // initialized
 });

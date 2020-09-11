@@ -72,10 +72,6 @@ export abstract class JsongoCollection<
     return doc;
   }
 
-  findAll(criteria: object): Array<JsongoDoc> {
-    return this.find(criteria).all();
-  }
-
   exists(criteria: object): boolean {
     return this.find(criteria).hasNext();
   }

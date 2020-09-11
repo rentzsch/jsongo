@@ -68,19 +68,6 @@ export function findOneOrFail(
   });
 }
 
-export function findAll(
-  t: ExecutionContext,
-  db: JsongoDB,
-  CollectionClass: any
-) {
-  const person = new CollectionClass("person", db) as JsongoCollection;
-  person.insertMany(personFixture);
-
-  const items = person.findAll({});
-  t.truthy(Array.isArray(items));
-  t.is(items.length, 15);
-}
-
 export function exists(
   t: ExecutionContext,
   db: JsongoDB,
@@ -128,7 +115,7 @@ export function insertMany(
 
   // smoke test
   person.insertMany(personFixture);
-  const docs = person.findAll({});
+  const docs = person.find({}).all();
   t.is(docs.length, 15);
   docs.forEach((doc, idx) => t.like(doc, personFixture[idx]));
 
@@ -185,7 +172,7 @@ export function upsertMany(
 
   // smoke test
   person.upsertMany([{ name: "Elroy" }, { _id: lisaId, name: "Lisa II" }]);
-  const docs = person.findAll({});
+  const docs = person.find({}).all();
   t.is(docs.length, 4);
   t.deepEqual(docs[2], { _id: lisaId, name: "Lisa II" }); // extra key gone
   t.like(docs[3], { name: "Elroy" });

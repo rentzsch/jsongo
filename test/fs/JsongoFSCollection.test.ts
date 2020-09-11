@@ -36,10 +36,6 @@ test("fsdb.collection.findOneOrFail()", (t) => {
   collectionTest.findOneOrFail(t, memFSDB().db, JsongoFSCollection);
 });
 
-test("fsdb.collection.findAll()", (t) => {
-  collectionTest.findAll(t, memFSDB().db, JsongoFSCollection);
-});
-
 test("fsdb.collection.exists()", (t) => {
   collectionTest.exists(t, memFSDB().db, JsongoFSCollection);
 });

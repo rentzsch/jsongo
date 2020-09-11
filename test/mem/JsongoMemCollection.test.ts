@@ -32,10 +32,6 @@ test("memdb.collection.findOneOrFail()", (t) => {
   collectionTest.findOneOrFail(t, new JsongoMemDB(), JsongoMemCollection);
 });
 
-test("memdb.collection.findAll()", (t) => {
-  collectionTest.findAll(t, new JsongoMemDB(), JsongoMemCollection);
-});
-
 test("memdb.collection.exists()", (t) => {
   collectionTest.exists(t, new JsongoMemDB(), JsongoMemCollection);
 });

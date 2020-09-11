@@ -113,7 +113,7 @@ In Node, you can use either driver. For example:
 ```js
 import { fsDB } from "jsongo";
 const db = fsDB("./path/to/cartoon");
-const simpsonFamilyMembers = db.person.findAll({ family_id: "Simpson" });
+const simpsonFamilyMembers = db.person.find({ family_id: "Simpson" }).all();
 console.log(simpsonFamilyMembers);
 ```
 
@@ -191,5 +191,5 @@ When you need to generate a new ObjectID.
 
 Runs JavaScript code with access to a local `db` var.
 
-    $ jsongo eval --code "db.person.findAll({})"
+    $ jsongo eval --code "db.person.find({}).all()"
     [ { _id: '5f531ca259e05c432b15aa89', name: 'Jeff' } ]

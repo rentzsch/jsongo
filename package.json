@@ -15,7 +15,10 @@
     "build:esm": "tsc -p tsconfig.esm.json",
     "build:umd": "rollup -c",
     "build:test": "tsc --outDir build",
-    "test": "yarn clean && yarn build:test && ava",
+    "pretest": "yarn clean && yarn build:test",
+    "test": "ava",
+    "test:coverage": "yarn pretest --sourceMap && nyc --reporter=text --reporter=lcov ava",
+    "test:coverages": "yarn test:coverage && open-cli coverage/lcov-report/index.html",
     "watch": "(yarn build:test --watch &); ava --watch"
   },
   "dependencies": {
@@ -35,6 +38,8 @@
     "ava": "^3.12.1",
     "memfs": "^3.2.0",
     "npm-run-all": "^4.1.5",
+    "nyc": "^15.1.0",
+    "open-cli": "^6.0.1",
     "rollup": "^2.26.8",
     "rollup-plugin-terser": "^7.0.1",
     "tslib": "^2.0.1",

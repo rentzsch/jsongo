@@ -1,0 +1,62 @@
+[
+  {
+    "_id": "Bamm-Bamm",
+    "family_id": "Rubble"
+  },
+  {
+    "_id": "Barney",
+    "family_id": "Rubble"
+  },
+  {
+    "_id": "Bart",
+    "family_id": "Simpson"
+  },
+  {
+    "_id": "Betty",
+    "family_id": "Rubble"
+  },
+  {
+    "_id": "Elroy",
+    "family_id": "Jetson"
+  },
+  {
+    "_id": "Fred",
+    "family_id": "Flintstone"
+  },
+  {
+    "_id": "George",
+    "family_id": "Jetsons"
+  },
+  {
+    "_id": "Homer",
+    "family_id": "Simpson"
+  },
+  {
+    "_id": "Jane",
+    "family_id": "Jetson"
+  },
+  {
+    "_id": "Judy",
+    "family_id": "Jetson"
+  },
+  {
+    "_id": "Lisa",
+    "family_id": "Simpson"
+  },
+  {
+    "_id": "Maggie",
+    "family_id": "Simpson"
+  },
+  {
+    "_id": "Marge",
+    "family_id": "Simpson"
+  },
+  {
+    "_id": "Pebbles",
+    "family_id": "Flintstone"
+  },
+  {
+    "_id": "Wilma",
+    "family_id": "Flintstone"
+  }
+]

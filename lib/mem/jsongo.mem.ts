@@ -1,4 +1,7 @@
 import { JsongoMemDB } from "./JsongoMemDB";
-import { createDBProxy } from "../shared";
+import { JsongoMemCollection } from "./JsongoMemCollection";
+import { createDBProxy, DBProxy } from "../shared";
 
-export const memDB = () => createDBProxy(new JsongoMemDB());
+export type MemDBProxy = DBProxy<JsongoMemDB, JsongoMemCollection>;
+
+export const memDB = (): MemDBProxy => createDBProxy(new JsongoMemDB());

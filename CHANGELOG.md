@@ -1,8 +1,8 @@
 # Changelog
 
-## [Unreleased]
+## [0.6.2] - 2020-10-01
 
-- Bump `lodash` from 4.17.15 to 4.17.19
+- TypeScript rewrite (with breaking API changes) ([alex996](https://github.com/rentzsch/jsongo/pull/10))
 
 ## [0.3.0] - 2020-03-22
 

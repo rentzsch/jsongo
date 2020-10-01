@@ -1,14 +1,12 @@
-import { AJsongoCollection } from "../shared";
+import { JsongoMemDB } from "./JsongoMemDB";
+import { JsongoCollection } from "../shared";
 
 //
 // JsongoMemCollection
 //
 
-export class JsongoMemCollection extends AJsongoCollection {
-  _readAndParseJson(): void {
+export class JsongoMemCollection extends JsongoCollection<JsongoMemDB> {
+  protected _readAndParseJson(): void {
     this._docs = [];
-  }
-  saveFile(): void {
-    // No-op since the docs are already in memory.
   }
 }

@@ -2,9 +2,9 @@ import { fsDB } from "../../lib";
 import { CommandModule, Arguments } from "yargs";
 
 export default {
-  command: "fmt",
-  describe: "normalize and sort data records",
-  handler: fmtCmd,
+  command: "ls",
+  describe: "list collection names",
+  handler: lsCmd,
   builder: {
     dataDir: {
       describe: "Path to the data directory",
@@ -14,15 +14,12 @@ export default {
   },
 } as CommandModule;
 
-interface FmtArgs extends Arguments {
+interface LsArgs extends Arguments {
   dataDir: string;
 }
 
-function fmtCmd(argv: Arguments) {
-  const { dataDir } = argv as FmtArgs;
+function lsCmd(argv: Arguments) {
+  const { dataDir } = argv as LsArgs;
   const db = fsDB(dataDir);
-  for (const collection of db.collections()) {
-    collection.docs();
-  }
-  db.save();
+  console.log(JSON.stringify(db.collectionNames(), null, 2));
 }

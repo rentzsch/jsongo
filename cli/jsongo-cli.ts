@@ -7,4 +7,5 @@ yargs
     visit: (commandModule) => commandModule.default,
   })
   .demandCommand()
+  .scriptName("jsongo")
   .help().argv;

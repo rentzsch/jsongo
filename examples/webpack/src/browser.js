@@ -1,8 +1,7 @@
 import { memDB } from "jsongo";
 
 const db = memDB();
-db.users.save({ name: "guest" });
-db.users.save({ name: "anonymous" });
+db.users.insertMany([{ name: "guest" }, { name: "anonymous" }]);
 
 const users = db.users.find({});
 for (const user of users) {

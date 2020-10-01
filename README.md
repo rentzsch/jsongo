@@ -2,11 +2,15 @@
 
 **Jsongo** is a simple, lightweight, yet flexible database system.
 
-To use the [library](#library):
+To install the [library](#library):
 
     $ yarn add jsongo
 
 To use the `jsongo` [tool](#cli-tool):
+
+    $ npx jsongo
+
+To make `jsongo` tool globally available:
 
     $ npm install --global jsongo
 
@@ -68,51 +72,11 @@ Sorting Object keys makes Jsongo even slower, but greatly aids in creating simpl
 
 Keys are sorted with [Array.prototype.sort()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort) using the standard `compareFunction` (a custom one isn't supplied).
 
-A Collection JSON file comes in one of two _shapes_, the default _Object shape_ or the optional _Array shape_. I use the word "shape" here because the word format is already overloaded with two meanings (data format and format subcommand) in Jsongo.
-
-Here's an example of a collection JSON file which has the default Object shape:
-
-```json
-{
-  "fflintstone": {
-    "firstName": "Fred",
-    "lastName": "Flintstone"
-  },
-  "wflintstone": {
-    "firstName": "Wilma",
-    "lastName": "Flintstone"
-  }
-}
-```
-
-Here's the same data in Array shape:
-
-```json
-[
-  {
-    "_id": "fflintstone",
-    "firstName": "Fred",
-    "lastName": "Flintstone"
-  },
-  {
-    "_id": "wflintstone",
-    "firstName": "Wilma",
-    "lastName": "Flintstone"
-  }
-]
-```
-
-These are semantically equivalent.
-
-Object shape is slightly smaller on disk, smaller in memory, faster to read, and initially faster to access (when looking up documents by their `_id`).
-
-Array shape has the advantage that it exactly mirrors the in-memory the Jsongo client uses when using documents, it works better with `jsongo fmt` when hand-appending new documents (`fmt` will auto-insert missing `_id`s), and that it can more easily represent document which have compound `_id`'s.
-
 ## Relations
 
 When a document has a key that ends in `_id`, it's interpreted to mean a foreign key.
 
-Consider `people.json` collection:
+Consider `person.json` collection:
 
 ```json
 {
@@ -139,58 +103,93 @@ This implies a `family.json` with at least the following data:
 
 ## Library
 
-Usage example:
+Jsongo offers two database drivers:
+
+- file system (using `.json` files)
+- in-memory (using POJOs at runtime)
+
+In Node, you can use either driver. For example:
 
 ```js
-const jsongo = require("jsongo");
-const db = jsongo.db({ dirPath: "path/to/simpsons-db" });
-const simpsonFamilyMembers = db.people.findAll({ family_id: "Simpson" });
+import { fsDB } from "jsongo";
+const db = fsDB("./path/to/cartoon");
+const simpsonFamilyMembers = db.person.find({ family_id: "Simpson" }).all();
 console.log(simpsonFamilyMembers);
 ```
 
 ```json
-{
-  "Homer": {
+[
+  {
+    "_id": "Bart",
     "family_id": "Simpson"
   },
-  "Marge": {
+  {
+    "_id": "Homer",
     "family_id": "Simpson"
   },
-  "Bart": {
+  {
+    "_id": "Lisa",
     "family_id": "Simpson"
   },
-  "Lisa": {
+  {
+    "_id": "Maggie",
     "family_id": "Simpson"
   },
-  "Maggie": {
+  {
+    "_id": "Marge",
     "family_id": "Simpson"
   }
-}
+]
 ```
 
 <!-- TODO FIX ordering above -->
+
+In browsers, use the memory driver:
+
+```js
+import { memDB } from "jsongo";
+const db = memDB();
+```
+
+For more examples including project configuration, see [`/examples`](./examples).
 
 ## CLI Tool
 
 Sorted by most commonly used:
 
-### `jsongo fmt`
+### `jsongo fmt --dataDir <path>`
 
 Reads the collection json files, inserting an `_id` if the record doesn't already have one and pretty-printing the output.
 
-### `jsongo fsck`
+### `jsongo fsck --dataDir <path>`
 
 Checks consistency of entire database.
 
-### `jsongo rewrite-id <collection> <oldid> <newid>`
+### `jsongo ls --dataDir <path>`
+
+Lists names of the database collections.
+
+### `jsongo rewrite-id --dataDir <path> --collection <name> --oldID <object_id> --newID <object_id>`
 
 Makes it easy to replace an automatically generated `_id` with a semantic one.
 
-    jsongo rewrite-id collection 5e58083b2459f248bcdc2032 fflintstone
+    jsongo rewrite-id --dataDir data --collection person --oldID 5e58083b2459f248bcdc2032 --newID fflintstone
 
-### `jsongo objectid`
+### `jsongo objectid --times [number]`
 
 When you need to generate a new ObjectID.
 
     $ jsongo objectid
     5e78113ce16c4b07694a2bf1
+
+    $ jsongo objectid --times 3
+    5f53202fe9f96f47744b482b
+    5f53202fe9f96f47744b482c
+    5f53202fe9f96f47744b482d
+
+### `jsongo eval --dataDir <path> --code <string>`
+
+Runs JavaScript code with access to a local `db` var.
+
+    $ jsongo eval --code "db.person.find({}).all()"
+    [ { _id: '5f531ca259e05c432b15aa89', name: 'Jeff' } ]

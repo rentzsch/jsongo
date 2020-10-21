@@ -10,7 +10,7 @@
   "types": "lib",
   "scripts": {
     "clean": "rm -rf build",
-    "build": "run-p clean build:*",
+    "build": "run-p clean build:{cjs,esm,umd}",
     "build:cjs": "tsc -p tsconfig.cjs.json",
     "build:esm": "tsc -p tsconfig.esm.json",
     "build:umd": "rollup -c",

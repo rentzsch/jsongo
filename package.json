@@ -19,7 +19,8 @@
     "test": "ava",
     "test:coverage": "yarn pretest --sourceMap && nyc --reporter=text --reporter=lcov ava",
     "test:coverages": "yarn test:coverage && open-cli coverage/lcov-report/index.html",
-    "watch": "(yarn build:test --watch &); ava --watch"
+    "watch": "(yarn build:test --watch &); ava --watch",
+    "prepublishOnly": "yarn build"
   },
   "dependencies": {
     "bson-objectid": "^1.3.1",

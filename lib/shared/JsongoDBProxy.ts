@@ -2,7 +2,7 @@ import { JsongoDB } from "./JsongoDB";
 import { JsongoCollection } from "./JsongoCollection";
 
 /* Lookup table that returns either own property/method or collection (new/existing) */
-export type DBProxy<AJsongoDB, AJsongoCollection> = AJsongoDB &
+export type DBProxy<AJsongoDB = JsongoDB, AJsongoCollection = JsongoCollection> = AJsongoDB &
   Record<string, AJsongoCollection>;
 
 export function createDBProxy<

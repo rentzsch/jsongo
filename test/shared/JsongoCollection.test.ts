@@ -12,7 +12,7 @@ export function count(t: ExecutionContext, db: JsongoDB, CollectionClass: any) {
   t.is(person.count(), 0);
 
   person.insertMany(personFixture);
-  t.is(person.count(), 15);
+  t.is(person.count(), 16);
 }
 
 export function docs(t: ExecutionContext, db: JsongoDB, CollectionClass: any) {
@@ -23,7 +23,7 @@ export function docs(t: ExecutionContext, db: JsongoDB, CollectionClass: any) {
 
   person.insertMany(personFixture);
   const docs = person.docs();
-  t.is(docs.length, 15);
+  t.is(docs.length, 16);
   docs.forEach((doc, idx) => t.like(doc, personFixture[idx]));
 }
 
@@ -36,7 +36,7 @@ export function find(t: ExecutionContext, db: JsongoDB, CollectionClass: any) {
   const person = new CollectionClass("person", db) as JsongoCollection;
   person.insertMany(personFixture);
 
-  t.is(person.find({}).count(), 15); // all
+  t.is(person.find({}).count(), 16); // all
   t.is(person.find({ family_id: "Simpson" }).count(), 5); // subset
   t.is(person.find({ family_id: "Monroe" }).count(), 0); // none
 }
@@ -94,7 +94,7 @@ export function insertOne(
   t.like(docs[0], doc);
 
   // auto-generates _id
-  t.true(ObjectID.isValid(bart._id));
+  t.true(typeof bart._id === 'string' && ObjectID.isValid(bart._id));
 
   // accepts custom non-BSON _id
   const lisa = person.insertOne({ _id: "Lisa" });
@@ -116,7 +116,7 @@ export function insertMany(
   // smoke test
   person.insertMany(personFixture);
   const docs = person.find({}).all();
-  t.is(docs.length, 15);
+  t.is(docs.length, 16);
   docs.forEach((doc, idx) => t.like(doc, personFixture[idx]));
 
   // fails on duplicate input _id
@@ -147,7 +147,7 @@ export function upsertOne(
   const doc = person.findOne(judy);
   t.is(person.count(), 1);
   t.like(doc, judy);
-  t.true(ObjectID.isValid(doc!._id));
+  t.true(typeof doc!._id === 'string' && ObjectID.isValid(doc!._id));
 
   // replaces when found a match
   const judy2nd = { _id: doc!._id, name: "Judy II" };
@@ -192,10 +192,10 @@ export function deleteOne(
   const person = new CollectionClass("person", db) as JsongoCollection;
   person.insertMany(personFixture);
 
-  t.is(person.count(), 15);
+  t.is(person.count(), 16);
   const res = person.deleteOne({ _id: "Bart" });
   t.is(res.deletedCount, 1);
-  t.is(person.count(), 14);
+  t.is(person.count(), 15);
   t.is(person.findOne({ _id: "Bart" }), null);
 }
 
@@ -207,13 +207,13 @@ export function deleteMany(
   const person = new CollectionClass("person", db) as JsongoCollection;
   person.insertMany(personFixture);
 
-  t.is(person.count(), 15); // before
+  t.is(person.count(), 16); // before
   const res = person.deleteMany({ family_id: "Simpson" });
-  t.is(person.count(), 10); // after
+  t.is(person.count(), 11); // after
   t.is(res.deletedCount, 5); // diff
 
   const resBogus = person.deleteMany({ family_id: "bogus" });
-  t.is(person.count(), 10); // not affected
+  t.is(person.count(), 11); // not affected
   t.is(resBogus.deletedCount, 0);
 }
 

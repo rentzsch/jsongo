@@ -1,5 +1,5 @@
 import { JsongoFSDB } from "./JsongoFSDB";
-import { JsongoCollection, InputDoc, JsongoDoc } from "../shared";
+import { JsongoCollection } from "../shared";
 import path from "path";
 import fs from "fs";
 

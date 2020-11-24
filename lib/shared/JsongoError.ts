@@ -1,3 +1,5 @@
+import { JsongoID } from "./JsongoIDType";
+
 export class DuplicateCollectionName extends Error {
   name = "JsongoDuplicateCollectionName";
 
@@ -27,7 +29,7 @@ export class DocumentNotFound extends Error {
 export class DuplicateDocumentID extends Error {
   name = "JsongoDuplicateDocumentID";
 
-  constructor(_id: string, collectionName: string) {
+  constructor(_id: JsongoID, collectionName: string) {
     super(`Document with _id ${_id} already exists in ${collectionName}`);
   }
 }
@@ -35,7 +37,7 @@ export class DuplicateDocumentID extends Error {
 export class DuplicateInputID extends Error {
   name = "JsongoDuplicateInputID";
 
-  constructor(_id: string) {
+  constructor(_id: JsongoID) {
     super(`Duplicate _id not allowed: ${_id}`);
   }
 }

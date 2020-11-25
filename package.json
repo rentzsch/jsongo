@@ -1,6 +1,6 @@
 {
   "name": "jsongo",
-  "version": "0.6.3",
+  "version": "0.6.4",
   "description": "Like MongoDB, except stores data in git-friendly flat json files",
   "license": "MIT",
   "bin": "build/cli/jsongo-cli.js",

@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.6.4] - 2020-11-24
+
+- FIX Support pure number primary keys (`_id`). ([alex996](https://github.com/rentzsch/jsongo/pull/13))
+
 ## [0.6.3] - 2020-10-20
 
 - NEW Export abstract DBProxy; FIX don't distribute test files ([alex996](https://github.com/rentzsch/jsongo/pull/12))

@@ -1,3 +1,5 @@
+export { default as carFixture } from "./car.json";
+
 export { default as familyFixture } from "./family.json";
 
 export { default as personFixture } from "./person.json";

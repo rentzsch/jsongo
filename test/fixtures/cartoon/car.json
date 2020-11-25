@@ -1,0 +1,23 @@
+[
+  {
+    "_id": 1,
+    "make": "Plymouth",
+    "model": "Pink Sedan",
+    "person_id": "Homer",
+    "year": 1973
+  },
+  {
+    "_id": 2,
+    "make": "Chevrolet",
+    "model": "Orange Station Wagon",
+    "person_id": "Marge",
+    "year": 1973
+  },
+  {
+    "_id": 3,
+    "make": "Pontiac",
+    "model": "Pontiac Bonneville",
+    "person_id": "Moe",
+    "year": 1974
+  }
+]

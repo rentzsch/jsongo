@@ -1,5 +1,5 @@
 import { memFSDB } from "./utils";
-import { personFixture } from "../fixtures";
+import { personFixture, carFixture } from "../fixtures";
 import * as collectionTest from "../shared/JsongoCollection.test";
 import { JsongoFSCollection, JsongoFSDB } from "../../lib";
 import test from "ava";
@@ -94,12 +94,15 @@ test("fsdb.collection._readAndParseJson()", (t) => {
 
 test("fsdb.collection.save()", (t) => {
   const { db, vol } = memFSDB("/path/to/db");
-  const person = db.addNewCollection("person");
+  const person = db.addNewCollection("person"); // string ID
   person.insertMany(personFixture);
+  const car = db.addNewCollection("car"); // integer ID
+  car.insertMany(carFixture)
 
   db.save();
   t.deepEqual(vol.toJSON(), {
     "/path/to/db/person.json": `${JSON.stringify(personFixture, null, 2)}\n`,
+    "/path/to/db/car.json": `${JSON.stringify(carFixture, null, 2)}\n`,
   });
 });
 

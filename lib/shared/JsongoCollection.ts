@@ -4,6 +4,7 @@ import {
   DuplicateDocumentID,
   DuplicateInputID,
 } from "./JsongoError";
+import { JsongoID } from '../shared'
 
 import ObjectID from "bson-objectid";
 import mingo from "mingo";
@@ -200,8 +201,8 @@ export abstract class JsongoCollection<
   toJsonObj() {
     const docs = this.docs();
     const sortedDocs = docs.sort((a: any, b: any) => {
-      const nameA = valueOrJson(a._id).toUpperCase(); // ignore upper and lowercase
-      const nameB = valueOrJson(b._id).toUpperCase();
+      const nameA = String(valueOrJson(a._id)).toUpperCase(); // ignore upper and lowercase
+      const nameB = String(valueOrJson(b._id)).toUpperCase();
       if (nameA < nameB) {
         return -1;
       }
@@ -289,13 +290,11 @@ export function parseJsongoRelationName(fieldName: string): null | string {
 }
 
 // POJO with an obligatory _id key
-export interface JsongoDoc {
-  _id: string;
-  [key: string]: any;
+export interface JsongoDoc extends Record<string, any> {
+  _id: JsongoID;
 }
 
 // User-supplied POJO with an optional _id key
-export interface InputDoc {
-  _id?: string;
-  [key: string]: any;
+export interface InputDoc extends Record<string, any> {
+  _id?: JsongoID;
 }

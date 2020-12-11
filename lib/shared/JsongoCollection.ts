@@ -200,9 +200,12 @@ export abstract class JsongoCollection<
 
   toJsonObj() {
     const docs = this.docs();
-    const sortedDocs = docs.sort((a: any, b: any) => {
-      const nameA = String(valueOrJson(a._id)).toUpperCase(); // ignore upper and lowercase
-      const nameB = String(valueOrJson(b._id)).toUpperCase();
+    const sortedDocs = docs.sort((a, b) => {
+      let nameA = valueOrJson(a._id);
+      if (typeof nameA === "string") nameA = nameA.toUpperCase(); // ignore upper and lowercase
+      let nameB = valueOrJson(b._id);
+      if (typeof nameB === "string") nameB = nameB.toUpperCase();
+
       if (nameA < nameB) {
         return -1;
       }
@@ -212,7 +215,7 @@ export abstract class JsongoCollection<
       // names must be equal
       return 0;
     });
-    return sortedDocs.map((doc: any) => sortKeys(doc, { deep: true }));
+    return sortedDocs.map((doc) => sortKeys(doc, { deep: true }));
   }
 
   toJson() {

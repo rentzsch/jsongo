@@ -3,5 +3,5 @@
   "compilerOptions": {
     "outDir": "./build"
   },
-  "exclude": ["test"]
+  "exclude": ["lib/index.esm.ts", "test"]
 }

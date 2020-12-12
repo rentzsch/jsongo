@@ -1,5 +1,5 @@
 import { memFSDB } from "./utils";
-import { personFixture, carFixture } from "../fixtures";
+import { personFixture, carFixture, homeFixture } from "../fixtures";
 import * as collectionTest from "../shared/JsongoCollection.test";
 import { JsongoFSCollection, JsongoFSDB } from "../../lib";
 import test from "ava";
@@ -64,7 +64,9 @@ test("fsdb.collection.deleteMany()", (t) => {
   collectionTest.deleteMany(t, memFSDB().db, JsongoFSCollection);
 });
 
-test.todo("fsdb.collection.toJsonObj()");
+test("fsdb.collection.toJsonObj()", (t) => {
+  collectionTest.toJsonObj(t, memFSDB().db, JsongoFSCollection);
+});
 
 test.todo("fsdb.collection.toJson()");
 
@@ -94,15 +96,21 @@ test("fsdb.collection._readAndParseJson()", (t) => {
 
 test("fsdb.collection.save()", (t) => {
   const { db, vol } = memFSDB("/path/to/db");
+
   const person = db.addNewCollection("person"); // string ID
   person.insertMany(personFixture);
+
   const car = db.addNewCollection("car"); // integer ID
-  car.insertMany(carFixture)
+  car.insertMany(carFixture);
+
+  const home = db.addNewCollection("home"); // composite ID
+  home.insertMany(homeFixture);
 
   db.save();
   t.deepEqual(vol.toJSON(), {
-    "/path/to/db/person.json": `${JSON.stringify(personFixture, null, 2)}\n`,
     "/path/to/db/car.json": `${JSON.stringify(carFixture, null, 2)}\n`,
+    "/path/to/db/home.json": `${JSON.stringify(homeFixture, null, 2)}\n`,
+    "/path/to/db/person.json": `${JSON.stringify(personFixture, null, 2)}\n`,
   });
 });
 

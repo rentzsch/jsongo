@@ -13,6 +13,9 @@ export type IntegerID = number;
 /** Composite object ID */
 export type CompoundID = object;
 
-// TODO not fully compatible with compound IDs yet.
-// How to detect missing compound IDs on insertMany/upsertMany?
-export type JsongoID = StringID | CallsignID | ObjectID | IntegerID; // | CompoundID;
+export type JsongoID =
+  | StringID
+  | CallsignID
+  | ObjectID
+  | IntegerID
+  | CompoundID;

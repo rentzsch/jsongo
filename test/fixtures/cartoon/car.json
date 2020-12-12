@@ -19,5 +19,19 @@
     "model": "Pontiac Bonneville",
     "person_id": "Moe",
     "year": 1974
+  },
+  {
+    "_id": 20,
+    "make": "Plymouth",
+    "model": "Road Runner",
+    "person_id": "Homer",
+    "year": 1974
+  },
+  {
+    "_id": 100,
+    "make": "Ford",
+    "model": "Canyonero",
+    "person_id": "Krusty the Clown",
+    "year": 1976
   }
 ]

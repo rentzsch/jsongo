@@ -5,5 +5,5 @@
     "rootDir": "./lib",
     "outDir": "./build/esm"
   },
-  "exclude": ["cli", "test"]
+  "exclude": ["cli", "lib/fs", "lib/index.ts", "test"]
 }

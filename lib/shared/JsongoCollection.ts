@@ -4,7 +4,7 @@ import {
   DuplicateDocumentID,
   DuplicateInputID,
 } from "./JsongoError";
-import { JsongoID } from '../shared'
+import { JsongoID } from "../shared";
 
 import ObjectID from "bson-objectid";
 import mingo from "mingo";
@@ -99,11 +99,12 @@ export abstract class JsongoCollection<
     const usedIds: Record<string, boolean> = {};
     for (const doc of docs) {
       if (doc._id !== undefined) {
+        const key = JSON.stringify(doc._id); // handle composite _id
         // _id may not appear twice.
-        if (usedIds[doc._id] === true) {
+        if (usedIds[key] === true) {
           throw new DuplicateInputID(doc._id);
         }
-        usedIds[doc._id] = true;
+        usedIds[key] = true;
 
         // _id must be vacant.
         if (this.exists({ _id: doc._id })) {
@@ -146,11 +147,12 @@ export abstract class JsongoCollection<
     const usedIds: Record<string, boolean> = {};
     for (const doc of docs) {
       if (doc._id !== undefined) {
+        const key = JSON.stringify(doc._id); // handle composite _id
         // _id may not appear twice.
-        if (usedIds[doc._id] === true) {
+        if (usedIds[key] === true) {
           throw new DuplicateInputID(doc._id);
         }
-        usedIds[doc._id] = true;
+        usedIds[key] = true;
       }
     }
 
@@ -200,9 +202,12 @@ export abstract class JsongoCollection<
 
   toJsonObj() {
     const docs = this.docs();
-    const sortedDocs = docs.sort((a: any, b: any) => {
-      const nameA = String(valueOrJson(a._id)).toUpperCase(); // ignore upper and lowercase
-      const nameB = String(valueOrJson(b._id)).toUpperCase();
+    const sortedDocs = docs.sort((a, b) => {
+      let nameA = valueOrJson(a._id);
+      if (typeof nameA === "string") nameA = nameA.toUpperCase(); // ignore upper and lowercase
+      let nameB = valueOrJson(b._id);
+      if (typeof nameB === "string") nameB = nameB.toUpperCase();
+
       if (nameA < nameB) {
         return -1;
       }
@@ -212,7 +217,7 @@ export abstract class JsongoCollection<
       // names must be equal
       return 0;
     });
-    return sortedDocs.map((doc: any) => sortKeys(doc, { deep: true }));
+    return sortedDocs.map((doc) => sortKeys(doc, { deep: true }));
   }
 
   toJson() {

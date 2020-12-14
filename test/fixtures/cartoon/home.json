@@ -1,0 +1,30 @@
+[
+  {
+    "_id": {
+      "family_id": "Flanders",
+      "person_id": "Todd"
+    },
+    "address": "744 Evergreen Terrace"
+  },
+  {
+    "_id": {
+      "family_id": "Simpson",
+      "person_id": "Homer"
+    },
+    "address": "742 Evergreen Terrace"
+  },
+  {
+    "_id": {
+      "family_id": "Szyslak",
+      "person_id": "Moe"
+    },
+    "address": "57 Walnut Street"
+  },
+  {
+    "_id": {
+      "family_id": "Van Houten",
+      "person_id": "Kirk"
+    },
+    "address": "316 Pikeland Ave"
+  }
+]

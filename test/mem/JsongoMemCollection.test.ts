@@ -60,7 +60,9 @@ test("memdb.collection.deleteMany()", (t) => {
   collectionTest.deleteMany(t, new JsongoMemDB(), JsongoMemCollection);
 });
 
-test.todo("memdb.collection.toJsonObj()");
+test("memdb.collection.toJsonObj()", (t) => {
+  collectionTest.toJsonObj(t, new JsongoMemDB(), JsongoMemCollection);
+});
 
 test.todo("memdb.collection.toJson()");
 

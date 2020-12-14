@@ -1,4 +1,4 @@
-import { personFixture } from "../fixtures";
+import { homeFixture, personFixture } from "../fixtures";
 import {
   parseJsongoRelationName,
   JsongoDB,
@@ -12,7 +12,7 @@ export function count(t: ExecutionContext, db: JsongoDB, CollectionClass: any) {
   t.is(person.count(), 0);
 
   person.insertMany(personFixture);
-  t.is(person.count(), 16);
+  t.is(person.count(), 18);
 }
 
 export function docs(t: ExecutionContext, db: JsongoDB, CollectionClass: any) {
@@ -23,8 +23,8 @@ export function docs(t: ExecutionContext, db: JsongoDB, CollectionClass: any) {
 
   person.insertMany(personFixture);
   const docs = person.docs();
-  t.is(docs.length, 16);
-  docs.forEach((doc, idx) => t.like(doc, personFixture[idx]));
+  t.is(docs.length, 18);
+  t.deepEqual(docs, personFixture);
 }
 
 export function name(t: ExecutionContext, db: JsongoDB, CollectionClass: any) {
@@ -36,7 +36,7 @@ export function find(t: ExecutionContext, db: JsongoDB, CollectionClass: any) {
   const person = new CollectionClass("person", db) as JsongoCollection;
   person.insertMany(personFixture);
 
-  t.is(person.find({}).count(), 16); // all
+  t.is(person.find({}).count(), 18); // all
   t.is(person.find({ family_id: "Simpson" }).count(), 5); // subset
   t.is(person.find({ family_id: "Monroe" }).count(), 0); // none
 }
@@ -85,6 +85,7 @@ export function insertOne(
   CollectionClass: any
 ) {
   const person = new CollectionClass("person", db) as JsongoCollection;
+  const home = new CollectionClass("car", db) as JsongoCollection;
 
   // smoke test
   const doc = { name: "Bart" };
@@ -93,8 +94,12 @@ export function insertOne(
   t.is(docs.length, 1);
   t.like(docs[0], doc);
 
+  // smoke test with composite _id
+  home.insertOne(homeFixture[1]);
+  t.deepEqual(home.docs()[0], homeFixture[1]);
+
   // auto-generates _id
-  t.true(typeof bart._id === 'string' && ObjectID.isValid(bart._id));
+  t.true(typeof bart._id === "string" && ObjectID.isValid(bart._id));
 
   // accepts custom non-BSON _id
   const lisa = person.insertOne({ _id: "Lisa" });
@@ -102,6 +107,11 @@ export function insertOne(
 
   // fails on duplicate _id
   t.throws(() => person.insertOne({ _id: bart._id }), {
+    name: "JsongoDuplicateDocumentID",
+  });
+
+  // fails on duplicate composite _id
+  t.throws(() => home.insertOne(homeFixture[1]), {
     name: "JsongoDuplicateDocumentID",
   });
 }
@@ -112,18 +122,33 @@ export function insertMany(
   CollectionClass: any
 ) {
   const person = new CollectionClass("person", db) as JsongoCollection;
+  const home = new CollectionClass("car", db) as JsongoCollection;
 
   // smoke test
   person.insertMany(personFixture);
-  const docs = person.find({}).all();
-  t.is(docs.length, 16);
-  docs.forEach((doc, idx) => t.like(doc, personFixture[idx]));
+  const persons = person.find({}).all();
+  t.is(persons.length, 18);
+  t.deepEqual(persons, personFixture);
+
+  // smoke test with composite _id
+  home.insertMany(homeFixture);
+  const homes = home.find({}).all();
+  t.is(homes.length, 4);
+  t.deepEqual(homes, homeFixture);
 
   // fails on duplicate input _id
   t.throws(
     () => person.insertMany([{ _id: "Jill" }, { _id: "Bob" }, { _id: "Jill" }]),
     { name: "JsongoDuplicateInputID" }
   );
+  t.is(person.count(), 18); // didn't change
+
+  // fails on duplicate input composite _id
+  const newHome = { _id: { family_id: "Jetson", person_id: "Elroy" } };
+  t.throws(() => home.insertMany([newHome, newHome]), {
+    name: "JsongoDuplicateInputID",
+  });
+  t.is(home.count(), 4);
 
   // fails on duplicate existing _id
   t.throws(
@@ -131,6 +156,13 @@ export function insertMany(
       person.insertMany([{ name: "Ben" }, personFixture[5], { name: "Jane" }]),
     { name: "JsongoDuplicateDocumentID" }
   );
+  t.is(person.count(), 18);
+
+  // fails on duplicate existing composite _id
+  t.throws(() => home.insertMany([newHome, homeFixture[2]]), {
+    name: "JsongoDuplicateDocumentID",
+  });
+  t.is(home.count(), 4);
 }
 
 export function upsertOne(
@@ -147,7 +179,7 @@ export function upsertOne(
   const doc = person.findOne(judy);
   t.is(person.count(), 1);
   t.like(doc, judy);
-  t.true(typeof doc!._id === 'string' && ObjectID.isValid(doc!._id));
+  t.true(typeof doc!._id === "string" && ObjectID.isValid(doc!._id));
 
   // replaces when found a match
   const judy2nd = { _id: doc!._id, name: "Judy II" };
@@ -163,6 +195,7 @@ export function upsertMany(
   CollectionClass: any
 ) {
   const person = new CollectionClass("person", db) as JsongoCollection;
+  const home = new CollectionClass("car", db) as JsongoCollection;
 
   const homer = { name: "Homer" };
   const bart = { name: "Bart" };
@@ -170,12 +203,25 @@ export function upsertMany(
   person.insertMany([homer, bart, lisa]);
   const lisaId = person.findOne(lisa)!._id;
 
+  const evergreenT = homeFixture[0];
+  const walnutSt = homeFixture[1];
+  home.insertMany([evergreenT, walnutSt]);
+  const pikelandAve = homeFixture[3];
+
   // smoke test
   person.upsertMany([{ name: "Elroy" }, { _id: lisaId, name: "Lisa II" }]);
-  const docs = person.find({}).all();
-  t.is(docs.length, 4);
-  t.deepEqual(docs[2], { _id: lisaId, name: "Lisa II" }); // extra key gone
-  t.like(docs[3], { name: "Elroy" });
+  const persons = person.find({}).all();
+  t.is(persons.length, 4);
+  t.deepEqual(persons[2], { _id: lisaId, name: "Lisa II" }); // extra key gone
+  t.like(persons[3], { name: "Elroy" }); // inserted doc
+
+  // smoke test with composite _id
+  const updatedWalnutSt = { ...homeFixture[1], address: "58a Walnut St" };
+  home.upsertMany([pikelandAve, updatedWalnutSt]);
+  const homes = home.find({}).all();
+  t.is(homes.length, 3);
+  t.deepEqual(homes[1], updatedWalnutSt); // updated key
+  t.deepEqual(homes[2], pikelandAve); // inserted doc
 
   // fails on duplicate input _id
   t.throws(
@@ -192,10 +238,10 @@ export function deleteOne(
   const person = new CollectionClass("person", db) as JsongoCollection;
   person.insertMany(personFixture);
 
-  t.is(person.count(), 16);
+  t.is(person.count(), 18);
   const res = person.deleteOne({ _id: "Bart" });
   t.is(res.deletedCount, 1);
-  t.is(person.count(), 15);
+  t.is(person.count(), 17);
   t.is(person.findOne({ _id: "Bart" }), null);
 }
 
@@ -207,14 +253,51 @@ export function deleteMany(
   const person = new CollectionClass("person", db) as JsongoCollection;
   person.insertMany(personFixture);
 
-  t.is(person.count(), 16); // before
+  t.is(person.count(), 18); // before
   const res = person.deleteMany({ family_id: "Simpson" });
-  t.is(person.count(), 11); // after
+  t.is(person.count(), 13); // after
   t.is(res.deletedCount, 5); // diff
 
   const resBogus = person.deleteMany({ family_id: "bogus" });
-  t.is(person.count(), 11); // not affected
+  t.is(person.count(), 13); // not affected
   t.is(resBogus.deletedCount, 0);
+}
+
+export function toJsonObj(
+  t: ExecutionContext,
+  db: JsongoDB,
+  CollectionClass: any
+) {
+  const person = new CollectionClass("person", db) as JsongoCollection;
+  const doc = {
+    _id: {
+      lastName: "Simpson",
+      firstName: "Homer",
+    },
+    occupation: "Safety Inspector",
+    children: ["Maggie", "Lisa", "Bart"], // should keep order
+    dob: "1956-05-12",
+    hair: "brown",
+    location: "Springfield",
+  };
+  person.insertOne(doc);
+
+  const [homer] = person.toJsonObj();
+
+  t.deepEqual(
+    JSON.stringify(homer),
+    JSON.stringify({
+      _id: {
+        firstName: "Homer",
+        lastName: "Simpson",
+      },
+      children: ["Maggie", "Lisa", "Bart"], // should keep order
+      dob: "1956-05-12",
+      hair: "brown",
+      location: "Springfield",
+      occupation: "Safety Inspector",
+    })
+  );
 }
 
 export function _findDocumentIndex(

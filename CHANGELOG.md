@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.6.5] - 2020-12-14
+
+- Exclude fsDB from browser output files. ([alex996](https://github.com/rentzsch/jsongo/pull/15))
+
 ## [0.6.4] - 2020-11-24
 
 - FIX Support pure number primary keys (`_id`). ([alex996](https://github.com/rentzsch/jsongo/pull/13))

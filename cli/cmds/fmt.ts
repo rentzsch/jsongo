@@ -9,7 +9,7 @@ export default {
     dataDir: {
       describe: "Path to the data directory",
       type: "string",
-      demandOption: true,
+      default: ".",
     },
   },
 } as CommandModule;

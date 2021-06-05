@@ -30,7 +30,7 @@ function evalCmd(argv: Arguments) {
   const db = fsDB(dataDir);
   const cmdFunctionStr = `(() => {
     "use strict";
-    return (${code});
+    ${code};
   })()`;
   console.log(eval(cmdFunctionStr));
 }

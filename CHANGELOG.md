@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.6.6] - 2021-06-05
+
+- FIX default --dataDir cli arg to "." ([rentzsch](https://github.com/rentzsch/jsongo/commit/af693a5697c09b75a09c6964e5cbfb75af423863))
+- FIX allow semicolon-delimited multiple arguments in `jsongo eval --code`. This allows stuff like `jsongo eval --code 'db.deleteOne({id:42}); db.save()'` ([rentzsch](https://github.com/rentzsch/jsongo/commit/6f6e3a3e7811c77859b6b5fbe562a792fd330540))
+
 ## [0.6.5] - 2020-12-14
 
 - Exclude fsDB from browser output files. ([alex996](https://github.com/rentzsch/jsongo/pull/15))

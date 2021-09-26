@@ -12,7 +12,7 @@ export class JsongoFSCollection extends JsongoCollection<JsongoFSDB> {
     try {
       const jsonBuf = this._fs().readFileSync(this._filePath(), "utf-8");
       this._docs = JSON.parse(jsonBuf);
-    } catch (ex) {
+    } catch (ex: any) {
       if (ex.code === "ENOENT") {
         this._docs = [];
         this._isDirty = true;

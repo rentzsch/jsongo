@@ -1,4 +1,5 @@
 import { JsongoID } from "./JsongoIDType";
+import { RawObject } from "mingo/types";
 
 export class DuplicateCollectionName extends Error {
   name = "JsongoDuplicateCollectionName";
@@ -19,7 +20,7 @@ export class CollectionNotFound extends Error {
 export class DocumentNotFound extends Error {
   name = "JsongoDocumentNotFound";
 
-  constructor(criteria: object) {
+  constructor(criteria: RawObject) {
     super(
       `No document matches this search criteria: ${JSON.stringify(criteria)}`
     );

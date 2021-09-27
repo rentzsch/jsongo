@@ -10,6 +10,7 @@ import ObjectID from "bson-objectid";
 import mingo from "mingo";
 import { Cursor } from "mingo/cursor";
 import { Query } from "mingo/query";
+import { RawObject } from "mingo/types";
 import sortKeys from "sort-keys";
 import valueOrJson from "value-or-json";
 
@@ -52,20 +53,20 @@ export abstract class JsongoCollection<
   // Queries
   //
 
-  find(criteria: object): Cursor {
+  find(criteria: RawObject): Cursor {
     return mingo.find(this.docs(), criteria);
   }
 
-  findOne(criteria: object): JsongoDoc | null {
+  findOne(criteria: RawObject): JsongoDoc | null {
     const cursor = this.find(criteria);
     if (cursor.hasNext()) {
-      return cursor.next();
+      return cursor.next() as JsongoDoc;
     } else {
       return null;
     }
   }
 
-  findOneOrFail(criteria: object): JsongoDoc {
+  findOneOrFail(criteria: RawObject): JsongoDoc {
     const doc = this.findOne(criteria);
     if (doc === null) {
       throw new DocumentNotFound(criteria);
@@ -73,7 +74,7 @@ export abstract class JsongoCollection<
     return doc;
   }
 
-  exists(criteria: object): boolean {
+  exists(criteria: RawObject): boolean {
     return this.find(criteria).hasNext();
   }
 
@@ -180,7 +181,7 @@ export abstract class JsongoCollection<
     return docs as Array<JsongoDoc>;
   }
 
-  deleteOne(criteria: object): { deletedCount: number } {
+  deleteOne(criteria: RawObject): { deletedCount: number } {
     const docIdx = this._findDocumentIndex(criteria);
     if (docIdx === null) {
       return { deletedCount: 0 };
@@ -190,7 +191,7 @@ export abstract class JsongoCollection<
     }
   }
 
-  deleteMany(criteria: object): { deletedCount: number } {
+  deleteMany(criteria: RawObject): { deletedCount: number } {
     const docs = this.docs();
     const oldCount = docs.length;
     const query = new Query(criteria);
@@ -201,23 +202,7 @@ export abstract class JsongoCollection<
   }
 
   toJsonObj() {
-    const docs = this.docs();
-    const sortedDocs = docs.sort((a, b) => {
-      let nameA = valueOrJson(a._id);
-      if (typeof nameA === "string") nameA = nameA.toUpperCase(); // ignore upper and lowercase
-      let nameB = valueOrJson(b._id);
-      if (typeof nameB === "string") nameB = nameB.toUpperCase();
-
-      if (nameA < nameB) {
-        return -1;
-      }
-      if (nameA > nameB) {
-        return 1;
-      }
-      // names must be equal
-      return 0;
-    });
-    return sortedDocs.map((doc) => sortKeys(doc, { deep: true }));
+    return sortCollectionDocs(this.docs());
   }
 
   toJson() {
@@ -269,7 +254,7 @@ export abstract class JsongoCollection<
     }
   }
 
-  protected _findDocumentIndex(criteria: object) {
+  protected _findDocumentIndex(criteria: RawObject) {
     const query = new Query(criteria);
     const docs = this.docs();
     for (let docIdx = 0; docIdx < docs.length; docIdx++) {
@@ -281,6 +266,25 @@ export abstract class JsongoCollection<
   }
 
   protected abstract _readAndParseJson(): void;
+}
+
+export function sortCollectionDocs(docs: Array<JsongoDoc>) {
+  const sortedDocs = docs.sort((a, b) => {
+    let nameA = valueOrJson(a._id);
+    if (typeof nameA === "string") nameA = nameA.toUpperCase(); // ignore upper and lowercase
+    let nameB = valueOrJson(b._id);
+    if (typeof nameB === "string") nameB = nameB.toUpperCase();
+
+    if (nameA < nameB) {
+      return -1;
+    }
+    if (nameA > nameB) {
+      return 1;
+    }
+    // names must be equal
+    return 0;
+  });
+  return sortedDocs.map((doc) => sortKeys(doc, { deep: true }));
 }
 
 export function parseJsongoRelationName(fieldName: string): null | string {

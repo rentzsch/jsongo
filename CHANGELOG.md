@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.6.7] - 2021-09-27
+
+- DEV Update dependancies ([alex996](https://github.com/rentzsch/jsongo/pull/23))
+
 ## [0.6.6] - 2021-06-05
 
 - FIX default --dataDir cli arg to "." ([rentzsch](https://github.com/rentzsch/jsongo/commit/af693a5697c09b75a09c6964e5cbfb75af423863))

@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.6.8] - 2021-09-27
+
+- DEV Update yarn.lock ([rentzsch](https://github.com/rentzsch/jsongo/commit/c81019d98ca7f80fbaaf46ced91faa01de6f7b0a))
+
 ## [0.6.7] - 2021-09-27
 
 - DEV Update dependancies ([alex996](https://github.com/rentzsch/jsongo/pull/23))

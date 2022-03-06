@@ -65,8 +65,8 @@ A collection has an array of Documents.
 The Document format is a superset of JSON:
 
 1. On-disk it's pretty-printed with 2-space indent (`JSON.stringify(, null, 2)`).
-2. Object keys are sorted.
-3. Records are sorted by their `_id`.
+2. Records are sorted by their `_id`.
+3. Object keys are sorted.
 
 Sorting Object keys makes Jsongo even slower, but greatly aids in creating simple diffs and merging changes.
 

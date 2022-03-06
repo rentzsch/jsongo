@@ -16,7 +16,7 @@ To make `jsongo` tool globally available:
 
 ## Backgrounder
 
-It prioritizes human-friendliness and an obvious data format that's of archival quality (its data should be able to be easily read far into the future past when JSON and Git are legacy technologies).
+Jsongo prioritizes human-friendliness and an obvious data format that's of archival quality (its data should be able to be easily read far into the future past when JSON and Git are legacy technologies).
 
 It consists of a [data format](#data-format), a [code library](#library), and a [CLI tool](#cli-tool).
 
@@ -58,7 +58,7 @@ On-disk, the database is represented as a directory and the collections as JSON 
     database/
     └─collection.json
 
-In general it's a bad idea to put non-Jsongo `*.json` files in a Jsongo database directory. The code assumes that all JSON files in a database is part of a database.
+In general it's a bad idea to put non-Jsongo `*.json` files in a Jsongo database directory. The code assumes that all JSON files in a directory is part of a database.
 
 A collection has an array of Documents.
 

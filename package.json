@@ -14,7 +14,7 @@
     "build:cjs": "tsc -p tsconfig.cjs.json",
     "build:esm": "tsc -p tsconfig.esm.json",
     "build:umd": "rollup -c",
-    "build:test": "tsc --outDir build",
+    "build:test": "tsc --outDir build --sourceMap",
     "pretest": "yarn clean && yarn build:test",
     "test": "ava",
     "test:coverage": "yarn pretest --sourceMap && nyc --reporter=text --reporter=lcov ava",

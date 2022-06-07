@@ -23,6 +23,10 @@ export abstract class JsongoCollection<
 > {
   protected _docs: Array<JsongoDoc> | null = null;
   protected _isDirty: boolean = false;
+  protected _indexes: Record<
+    keyof JsongoDoc,
+    Record<string, JsongoDoc | undefined>
+  > = {};
 
   constructor(protected _name: string, protected _db: AJsongoDB) {}
 
@@ -43,6 +47,13 @@ export abstract class JsongoCollection<
 
   isDirty() {
     return this._isDirty;
+  }
+
+  index(docKey: keyof JsongoDoc) {
+    if (!this._indexes[docKey]) {
+      this._populateIndex(docKey);
+    }
+    return this._indexes[docKey];
   }
 
   name() {
@@ -74,6 +85,18 @@ export abstract class JsongoCollection<
     return doc;
   }
 
+  findById(_id: JsongoID) {
+    return this.index("_id")[valueOrJson(_id) as string] ?? null;
+  }
+
+  findByIdOrFail(_id: JsongoID) {
+    const doc = this.findById(_id);
+    if (doc === null) {
+      throw new DocumentNotFound({ _id });
+    }
+    return doc;
+  }
+
   exists(criteria: RawObject): boolean {
     return this.find(criteria).hasNext();
   }
@@ -89,9 +112,13 @@ export abstract class JsongoCollection<
         throw new DuplicateDocumentID(doc._id, this._name);
       }
     }
+
     // At this point, doc has an _id.
     const newDoc = doc as JsongoDoc;
     this.docs().push(newDoc);
+
+    this._updateIndexes(newDoc);
+
     return newDoc;
   }
 
@@ -125,6 +152,11 @@ export abstract class JsongoCollection<
     const newDocs = docs as Array<JsongoDoc>;
     this.docs().push(...newDocs);
 
+    // Update indexes.
+    for (const newDoc of newDocs) {
+      this._updateIndexes(newDoc);
+    }
+
     return newDocs;
   }
 
@@ -136,6 +168,7 @@ export abstract class JsongoCollection<
         // Found the match, replace.
         const newDoc = doc as JsongoDoc;
         this.docs()[docIdx] = newDoc;
+        this._updateIndexes(newDoc);
         return newDoc;
       }
     }
@@ -169,6 +202,7 @@ export abstract class JsongoCollection<
           // Found the match, replace.
           const newDoc = doc as JsongoDoc;
           this.docs()[docIdx] = newDoc;
+          this._updateIndexes(newDoc);
           // Doesn't qualify for insert.
           return false;
         }
@@ -178,6 +212,10 @@ export abstract class JsongoCollection<
 
     this.docs().push(...newDocs);
 
+    for (const newDoc of newDocs) {
+      this._updateIndexes(newDoc);
+    }
+
     return docs as Array<JsongoDoc>;
   }
 
@@ -186,7 +224,8 @@ export abstract class JsongoCollection<
     if (docIdx === null) {
       return { deletedCount: 0 };
     } else {
-      this.docs().splice(docIdx, 1);
+      const [oldDoc] = this.docs().splice(docIdx, 1);
+      this._updateIndexes(oldDoc, true);
       return { deletedCount: 1 };
     }
   }
@@ -196,7 +235,13 @@ export abstract class JsongoCollection<
     const oldCount = docs.length;
     const query = new Query(criteria);
 
-    this._docs = docs.filter((doc) => !query.test(doc));
+    this._docs = docs.filter((doc) => {
+      const matches = query.test(doc);
+      if (matches) {
+        this._updateIndexes(doc, true);
+      }
+      return !matches;
+    });
 
     return { deletedCount: oldCount - this._docs.length };
   }
@@ -263,6 +308,24 @@ export abstract class JsongoCollection<
       }
     }
     return null;
+  }
+
+  protected _populateIndex(docKey: keyof JsongoDoc) {
+    this._indexes[docKey] = {};
+    for (const doc of this.docs()) {
+      this._indexes[docKey][valueOrJson(doc[docKey]) as string] = doc;
+    }
+  }
+
+  protected _updateIndexes(doc: JsongoDoc, docDeleted = false) {
+    for (const [docKey, index] of Object.entries(this._indexes)) {
+      const indexKey = valueOrJson(doc[docKey]) as string;
+      if (docDeleted) {
+        delete index[indexKey];
+      } else {
+        index[indexKey] = doc;
+      }
+    }
   }
 
   protected abstract _readAndParseJson(): void;

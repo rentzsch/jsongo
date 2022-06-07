@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.7.0] - 2022-06-07
+
+- NEW optional indexing for efficient searching: `db.collection.index()`, `db.collection.findById()`, and `db.collection.findByIdOrFail()` ([alex996](https://github.com/rentzsch/jsongo/pull/26))
+
 ## [0.6.8] - 2021-09-27
 
 - DEV Update yarn.lock ([rentzsch](https://github.com/rentzsch/jsongo/commit/c81019d98ca7f80fbaaf46ced91faa01de6f7b0a))

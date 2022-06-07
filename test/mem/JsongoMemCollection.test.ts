@@ -14,6 +14,10 @@ test("memdb.collection.docs()", (t) => {
   collectionTest.docs(t, new JsongoMemDB(), JsongoMemCollection);
 });
 
+test("memdb.collection.index()", (t) => {
+  collectionTest.index(t, new JsongoMemDB(), JsongoMemCollection);
+});
+
 test.todo("memdb.collection.isDirty()");
 
 test("memdb.collection.name()", (t) => {
@@ -70,6 +74,14 @@ test.todo("memdb.collection.fsck()");
 
 test("memdb.collection._findDocumentIndex()", (t) => {
   collectionTest._findDocumentIndex(t, new JsongoMemDB(), JsongoMemCollection);
+});
+
+test("memdb.collection._populateIndex()", (t) => {
+  collectionTest._populateIndex(t, new JsongoMemDB(), JsongoMemCollection);
+});
+
+test("memdb.collection._updateIndexes()", (t) => {
+  collectionTest._updateIndexes(t, new JsongoMemDB(), JsongoMemCollection);
 });
 
 //

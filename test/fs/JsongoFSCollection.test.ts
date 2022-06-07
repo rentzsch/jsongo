@@ -18,6 +18,10 @@ test("fsdb.collection.docs()", (t) => {
   collectionTest.docs(t, memFSDB().db, JsongoFSCollection);
 });
 
+test("fsdb.collection.index()", (t) => {
+  collectionTest.index(t, memFSDB().db, JsongoFSCollection);
+});
+
 test.todo("fsdb.collection.isDirty()");
 
 test("fsdb.collection.name()", (t) => {
@@ -76,6 +80,14 @@ test("fsdb.collection._findDocumentIndex()", (t) => {
   collectionTest._findDocumentIndex(t, memFSDB().db, JsongoFSCollection);
 });
 
+test("fsdb.collection._populateIndex()", (t) => {
+  collectionTest._populateIndex(t, memFSDB().db, JsongoFSCollection);
+});
+
+test("fsdb.collection._updateIndexes()", (t) => {
+  collectionTest._updateIndexes(t, memFSDB().db, JsongoFSCollection);
+});
+
 //
 // JsongoFSCollection
 //
@@ -84,7 +96,7 @@ test("fsdb.collection._readAndParseJson()", (t) => {
   const vol = Volume.fromJSON({
     "/db/person.json": `${JSON.stringify(personFixture, null, 2)}\n`,
   });
-  const db = new JsongoFSDB("/db", (vol as unknown) as typeof fs);
+  const db = new JsongoFSDB("/db", vol as unknown as typeof fs);
   const person = db.existingCollectionWithName("person") as JsongoFSCollection;
 
   t.true(person !== null);
@@ -119,7 +131,7 @@ test("fsdb.collection.remove()", (t) => {
     "/db/person.json": `${JSON.stringify(personFixture, null, 2)}\n`,
     "/db/pet.json": "[]\n",
   });
-  const db = new JsongoFSDB("/db", (vol as unknown) as typeof fs);
+  const db = new JsongoFSDB("/db", vol as unknown as typeof fs);
   const person = db.existingCollectionWithName("person") as JsongoFSCollection;
 
   person.remove();
@@ -141,7 +153,7 @@ test("fsdb.collection._fsdb()", (t) => {
 test("fsdb.collection._fs()", (t) => {
   const { db, vol } = memFSDB();
   const person = db.addNewCollection("person");
-  t.is(person["_fs"](), (vol as unknown) as typeof fs);
+  t.is(person["_fs"](), vol as unknown as typeof fs);
 });
 
 test("JsongoFSCollection.parseFileName()", (t) => {

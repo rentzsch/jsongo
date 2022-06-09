@@ -1,9 +1,10 @@
-import { homeFixture, personFixture } from "../fixtures";
+import { carFixture, homeFixture, personFixture } from "../fixtures";
 import {
   parseJsongoRelationName,
   JsongoDB,
   JsongoCollection,
   JsongoDoc,
+  DocumentNotFound,
 } from "../../lib/shared";
 import test, { ExecutionContext } from "ava";
 import ObjectID from "bson-objectid";
@@ -79,6 +80,63 @@ export function findOneOrFail(
   t.throws(() => person.findOneOrFail({ _id: "Welma" }), {
     name: "JsongoDocumentNotFound",
   });
+}
+
+export function findById(
+  t: ExecutionContext,
+  db: JsongoDB,
+  CollectionClass: any
+) {
+  const person = new CollectionClass("person", db) as JsongoCollection;
+  const home = new CollectionClass("home", db) as JsongoCollection;
+  const car = new CollectionClass("car", db) as JsongoCollection;
+  person.insertMany(personFixture);
+  home.insertMany(homeFixture);
+  car.insertMany(carFixture);
+
+  t.is(person.findById("Judy")!.family_id, "Jetson"); // unique
+  t.is(person.findById({ _id: "Welma" }), null); // non-existent
+
+  t.is(
+    home.findById({ family_id: "Szyslak", person_id: "Moe" })!.address,
+    "57 Walnut Street"
+  ); // composite ID
+  t.is(home.findById({ family_id: "Rodriguez", person_id: "Carlos" }), null);
+
+  t.is(car.findById(20)!.model, "Road Runner"); // integer ID
+  t.is(car.findById(42), null);
+}
+
+export function findByIdOrFail(
+  t: ExecutionContext,
+  db: JsongoDB,
+  CollectionClass: any
+) {
+  const person = new CollectionClass("person", db) as JsongoCollection;
+  const home = new CollectionClass("home", db) as JsongoCollection;
+  const car = new CollectionClass("car", db) as JsongoCollection;
+  person.insertMany(personFixture);
+  home.insertMany(homeFixture);
+  car.insertMany(carFixture);
+
+  t.is(person.findByIdOrFail("Judy").family_id, "Jetson"); // unique
+  t.throws(() => person.findByIdOrFail({ _id: "Welma" }), {
+    instanceOf: DocumentNotFound,
+  }); // non-existent
+
+  t.is(
+    home.findByIdOrFail({ family_id: "Szyslak", person_id: "Moe" }).address,
+    "57 Walnut Street"
+  ); // composite ID
+  t.throws(
+    () => home.findByIdOrFail({ family_id: "Rodriguez", person_id: "Carlos" }),
+    {
+      instanceOf: DocumentNotFound,
+    }
+  );
+
+  t.is(car.findByIdOrFail(20).model, "Road Runner"); // integer ID
+  t.throws(() => car.findByIdOrFail(42), { instanceOf: DocumentNotFound });
 }
 
 export function exists(

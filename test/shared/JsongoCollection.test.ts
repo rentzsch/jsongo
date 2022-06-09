@@ -100,10 +100,10 @@ export function findById(
   t.is(
     home.findById({ family_id: "Szyslak", person_id: "Moe" })!.address,
     "57 Walnut Street"
-  ); // composite ID
+  ); // composite _id
   t.is(home.findById({ family_id: "Rodriguez", person_id: "Carlos" }), null);
 
-  t.is(car.findById(20)!.model, "Road Runner"); // integer ID
+  t.is(car.findById(20)!.model, "Road Runner"); // integer _id
   t.is(car.findById(42), null);
 }
 
@@ -127,7 +127,7 @@ export function findByIdOrFail(
   t.is(
     home.findByIdOrFail({ family_id: "Szyslak", person_id: "Moe" }).address,
     "57 Walnut Street"
-  ); // composite ID
+  ); // composite _id
   t.throws(
     () => home.findByIdOrFail({ family_id: "Rodriguez", person_id: "Carlos" }),
     {
@@ -135,7 +135,7 @@ export function findByIdOrFail(
     }
   );
 
-  t.is(car.findByIdOrFail(20).model, "Road Runner"); // integer ID
+  t.is(car.findByIdOrFail(20).model, "Road Runner"); // integer _id
   t.throws(() => car.findByIdOrFail(42), { instanceOf: DocumentNotFound });
 }
 
@@ -156,7 +156,8 @@ export function insertOne(
   CollectionClass: any
 ) {
   const person = new CollectionClass("person", db) as JsongoCollection;
-  const home = new CollectionClass("car", db) as JsongoCollection;
+  const home = new CollectionClass("home", db) as JsongoCollection;
+  const car = new CollectionClass("car", db) as JsongoCollection;
 
   // smoke test
   const peopleById = person.index("_id"); // initialize as empty
@@ -172,6 +173,12 @@ export function insertOne(
   home.insertOne(homeFixture[1]);
   t.deepEqual(home.docs()[0], homeFixture[1]);
   t.is(homesById[valueOrJson(homeFixture[1]._id) as string], homeFixture[1]);
+
+  // smoke test with integer _id
+  const carsById = car.index("_id");
+  car.insertOne(carFixture[2]);
+  t.deepEqual(car.docs()[0], carFixture[2]);
+  t.is(carsById[carFixture[2]._id], carFixture[2]);
 
   // auto-generates _id
   t.true(typeof bart._id === "string" && ObjectID.isValid(bart._id));
@@ -197,7 +204,8 @@ export function insertMany(
   CollectionClass: any
 ) {
   const person = new CollectionClass("person", db) as JsongoCollection;
-  const home = new CollectionClass("car", db) as JsongoCollection;
+  const home = new CollectionClass("home", db) as JsongoCollection;
+  const car = new CollectionClass("car", db) as JsongoCollection;
 
   // smoke test
   const peopleById = person.index("_id");
@@ -214,6 +222,14 @@ export function insertMany(
   t.is(homes.length, 4);
   t.deepEqual(homes, homeFixture);
   t.is(homesById[valueOrJson(homes[3]._id) as string], homes[3]);
+
+  // smoke test with integer _id
+  const carsById = car.index("_id");
+  car.insertMany(carFixture);
+  const cars = car.find({}).all() as JsongoDoc[];
+  t.is(cars.length, 5);
+  t.deepEqual(cars, carFixture);
+  t.is(carsById[cars[4]._id as string], cars[4]);
 
   // fails on duplicate input _id
   t.throws(
@@ -277,7 +293,7 @@ export function upsertMany(
   CollectionClass: any
 ) {
   const person = new CollectionClass("person", db) as JsongoCollection;
-  const home = new CollectionClass("car", db) as JsongoCollection;
+  const home = new CollectionClass("home", db) as JsongoCollection;
 
   const homer = { name: "Homer" };
   const bart = { name: "Bart" };

@@ -79,22 +79,26 @@ When a document has a key that ends in `_id`, it's interpreted to mean a foreign
 Consider `person.json` collection:
 
 ```json
-{
-  "Homer": {
+[
+  {
+    "_id": "Homer",
     "family_id": "Simpson"
   },
-  "Marge": {
+  {
+    "_id": "Marge",
     "family_id": "Simpson"
   }
-}
+]
 ```
 
 This implies a `family.json` with at least the following data:
 
 ```json
-{
-  "Simpson": {}
-}
+[
+  {
+    "_id": "Simpson"
+  }
+]
 ```
 
 `jsongo fsck` will follow such relations and ensure they all exist.
@@ -155,27 +159,30 @@ For more examples including project configuration, see [`/examples`](./examples)
 
 ## CLI Tool
 
-Sorted by most commonly used:
+Sorted by most commonly used. If `--dataDir` isn't specified, the current working directory (cwd) is assumed.
 
-### `jsongo fmt --dataDir <path>`
+### `jsongo fmt [--dataDir <path>]`
 
 Reads the collection json files, inserting an `_id` if the record doesn't already have one and pretty-printing the output.
 
-### `jsongo fsck --dataDir <path>`
+### `jsongo eval --code <string> [--dataDir <path>]`
 
-Checks consistency of entire database.
+Runs JavaScript code with access to a local `db` var.
 
-### `jsongo ls --dataDir <path>`
+    $ jsongo eval --code "db.person.find({}).all()"
+    [ { _id: '5f531ca259e05c432b15aa89', name: 'Jeff' } ]
 
-Lists names of the database collections.
+### `jsongo fsck [--dataDir <path>]`
 
-### `jsongo rewrite-id --dataDir <path> --collection <name> --oldID <object_id> --newID <object_id>`
+TODO Checks consistency of entire database.
+
+### `jsongo rewrite-id --collection <name> --oldID <object_id> --newID <object_id> [--dataDir <path>]`
 
 Makes it easy to replace an automatically generated `_id` with a semantic one.
 
     jsongo rewrite-id --dataDir data --collection person --oldID 5e58083b2459f248bcdc2032 --newID fflintstone
 
-### `jsongo objectid --times [number]`
+### `jsongo objectid [--times <number>]`
 
 When you need to generate a new ObjectID.
 
@@ -187,9 +194,6 @@ When you need to generate a new ObjectID.
     5f53202fe9f96f47744b482c
     5f53202fe9f96f47744b482d
 
-### `jsongo eval --dataDir <path> --code <string>`
+### `jsongo ls [--dataDir <path>]`
 
-Runs JavaScript code with access to a local `db` var.
-
-    $ jsongo eval --code "db.person.find({}).all()"
-    [ { _id: '5f531ca259e05c432b15aa89', name: 'Jeff' } ]
+Lists names of the database collections.
